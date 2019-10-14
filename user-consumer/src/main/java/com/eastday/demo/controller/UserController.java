@@ -1,7 +1,7 @@
-package com.dfw.demo.controller;
+package com.eastday.demo.controller;
 
-import com.dfw.demo.entity.RetDto;
-import com.dfw.demo.entity.User;
+import com.eastday.demo.entity.RetDto;
+import com.eastday.demo.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,13 +19,14 @@ public class UserController {
 
     /**
      *手机号登录
-     * @param user
+     * @param phone
+     * @param code
      * @return
      */
     @RequestMapping(value="login")
-    public RetDto login(User user){
-        String url="http://user-provider/login?phone="+user.getPhone()+"&code="+user.getCode();
-        RetDto retDto=restTemplate.postForObject(url,user,RetDto.class);
+    public RetDto login(String phone,String code){
+        String url="http://user-provider/login?phone="+phone+"&code="+code;
+        RetDto retDto=restTemplate.getForObject(url,RetDto.class);
         return retDto;
     }
 

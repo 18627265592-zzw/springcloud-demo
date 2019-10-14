@@ -1,4 +1,4 @@
-package com.dfw.demo.util;
+package com.eastday.demo.util;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;

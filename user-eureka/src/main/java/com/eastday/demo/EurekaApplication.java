@@ -1,17 +1,18 @@
-package com.dfw.demo;
+package com.eastday.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
 
 /**
  * Created by admin on 2019/10/11.
  */
-@EnableDiscoveryClient
+@EnableEurekaServer
 @SpringBootApplication
-public class ProviderApplication {
+public class EurekaApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ProviderApplication.class,args);
+        SpringApplication.run(EurekaApplication.class);
     }
 }

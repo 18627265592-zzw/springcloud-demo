@@ -1,4 +1,4 @@
-package com.dfw.demo.entity;
+package com.eastday.demo.entity;
 
 public class User {
 

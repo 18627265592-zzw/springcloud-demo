@@ -1,17 +1,18 @@
-package com.dfw.demo.service;
+package com.eastday.demo.service;
 
-import com.dfw.demo.entity.RetDto;
-import com.dfw.demo.entity.User;
+import com.eastday.demo.entity.RetDto;
+import com.eastday.demo.entity.User;
 
 public interface IUserService {
 
 
     /**
      *手机号登录
-     * @param user
+     * @param phone
+     * @param code
      * @return
      */
-    public RetDto login(User user);
+    public RetDto login(String phone,String code);
 
     /**
      * 模拟发送短信验证码

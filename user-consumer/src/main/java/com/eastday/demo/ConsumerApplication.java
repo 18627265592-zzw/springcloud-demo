@@ -1,4 +1,4 @@
-package com.dfw.demo;
+package com.eastday.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

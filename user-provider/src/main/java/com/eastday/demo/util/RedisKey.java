@@ -1,4 +1,4 @@
-package com.dfw.demo.util;
+package com.eastday.demo.util;
 
 public class RedisKey {
     /**

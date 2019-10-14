@@ -1,4 +1,4 @@
-package com.dfw.demo.util;
+package com.eastday.demo.util;
 
 import com.auth0.jwt.JWTSigner;
 import com.auth0.jwt.JWTVerifier;

@@ -1,4 +1,4 @@
-package com.dfw.demo.entity;
+package com.eastday.demo.entity;
 
 /**
  * Created by admin on 2019/10/9.
