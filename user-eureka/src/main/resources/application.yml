@@ -3,7 +3,11 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://127.0.0.1:8082/eureka
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:8082/eureka/
 spring:
   application:
     name: user-eureka
+  security:
+        user:
+          name: admin
+          password: 123456

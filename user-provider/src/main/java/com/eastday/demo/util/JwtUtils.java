@@ -1,114 +1,72 @@
 package com.eastday.demo.util;
 
-import com.auth0.jwt.JWTSigner;
-import com.auth0.jwt.JWTVerifier;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.eastday.demo.user.User;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * Created by admin on 2019/10/9.
  */
 @Component
-public class JwtUtils extends RedisKey {
+public class JwtUtils extends ConstantKey {
 
-    /**
-     * 密钥
-     */
-    private static  final String SECRET="dfw";
-    /**
-     * 默认字段key:exp
-     */
-    private static final String EXP="exp";
-    /**
-     * 默认字段key:payload
-     */
-    private static final String PAYLOAD="payload";
 
 
     /**
-     * 手机号验证
-     * @param  str
-     * @return 验证通过返回true
+     * 获取token
+     * @param user 用户对象
+     * @return
      */
-    public static boolean isMobile(final String str) {
-        Pattern p = Pattern.compile("^((13[0-9])|(15[^4])|(18[0-9])|(17[0-9])|(147))\\d{8}$");
-        Matcher m = p.matcher(str);
-        return m.matches();
+    public String getToken(User user) {
+        Date start = new Date();
+        long currentTime = System.currentTimeMillis() + 60* 60 * 1000 * 2;//一小时有效时间
+        Date end = new Date(currentTime);
+        String token = "";
+        //用户手机号作为秘钥
+        token = JWT.create().withAudience(user.getUid().toString()).withIssuedAt(start).withExpiresAt(end)
+                .sign(Algorithm.HMAC256(user.getUserPhone()));
+        return token;
+    }
+
+
+    /**
+     * token中获取uid
+     * @return
+     */
+    public String getTokenUserId() {
+        String token = getRequest().getHeader("accessToken");// 从 http 请求头中取出 accessToken
+        String uid = JWT.decode(token).getAudience().get(0);
+        return uid;
     }
 
     /**
-     * 纯数字随机串码
+     * 获取request
      *
-     * @param number 多少位
-     * @return 运行结果
-     */
-    public static String NumberCode(int number) {
-        String str = "";
-        Random r = new Random();
-        int[] ary = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        for (int i = 0; i < number; i++) {
-            str += ary[r.nextInt(ary.length)];
-        }
-        return str;
-    }
-
-
-    /**
-     * 加密
-     * @param object 加密数据
-     * @param maxTime 有效期（毫秒数）
-     * @param <T>
      * @return
      */
-    public static <T> String encode(T object,long maxTime){
-        try{
-            final JWTSigner signer=new JWTSigner(SECRET);
-            final Map<String ,Object> data=new HashMap<>(10);
-            ObjectMapper objectMapper=new ObjectMapper();
-            String jsonString=objectMapper.writeValueAsString(object);
-            data.put(PAYLOAD,jsonString);
-            data.put(EXP,System.currentTimeMillis()+maxTime);
-            return signer.sign(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static HttpServletRequest getRequest() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+        return requestAttributes == null ? null : requestAttributes.getRequest();
     }
 
-    /**
-     * 数据解密
-     * @param jwt 解密数据
-     * @param tClass 解密类型
-     * @param <T>
-     * @return
-     * @throws Exception
-     */
-    public static <T> T decode(String jwt,Class<T> tClass) throws Exception{
-        final JWTVerifier jwtVerifier=new JWTVerifier(SECRET);
-        final Map<String,Object> data=jwtVerifier.verify(jwt);
-        //判断数据是否超时或者符合标准
-        if(data.containsKey(EXP)&&data.containsKey(PAYLOAD)){
-            long exp= (long) data.get(EXP);
-            long currentTimeMillis=System.currentTimeMillis();
-            if(exp>currentTimeMillis){
-                String json= (String) data.get(PAYLOAD);
-                ObjectMapper objectMapper=new ObjectMapper();
-                return objectMapper.readValue(json,tClass);
-            }else {
-                return null;
-                //throw new UserTimeoutException("用户登录超时");
-            }
-        }else {
-            return null;
-            //throw new UserErrorTokenException("用户token错误");
-        }
-    }
+    //token过期测试
+                    /*try {
+                        User user2=jwt.decode(token,User.class);
+                        if(user2==null){
+                            System.out.println("token过期");
+                        }else{
+                            System.out.println("-----"+user2.getCode());
+                            System.out.println("验证通过");
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }*/
 
 }

@@ -6,7 +6,6 @@ spring:
     username: root
     password: 123456
     url: jdbc:mysql://localhost:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&allowMultiQueries=true
-    type: com.alibaba.druid.pool.DruidDataSource #数据源配置
     driver-class-name: com.mysql.jdbc.Driver
     filters: stat,wall,log4j
     maxActive: 20 #最大连接数
@@ -15,15 +14,31 @@ spring:
     minIdle: 5
   application:
     name: user-provider
+  security:
+        user:
+          name: admin
+          password: 123456
 
 #配置mybatis
 mybatis:
     mapper-locations: classpath:mapper/*.xml
-    type-aliases-package: com.dfw.demo.entity
+    #实体类扫描地址
+    type-aliases-package: com.eastday.demo.user
+    #控制台打印sql
     configuration:
         log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#通用mapper
+mapper:
+    mappers:
+      - tk.mybatis.mapper.common.Mapper
+      - tk.mybatis.mapper.common.MySqlMapper
+    not-empty: true
+    identity: MYSQL
+
+
 eureka:
   client:
     service-url:
-      defaultZone: http://127.0.0.1:8082/eureka
+       defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:8082/eureka/
 
