@@ -134,7 +134,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.eastday.com.eastday.demo.ProviderApplication</mainClass>
+                    <mainClass>com.eastday.demo.ProviderApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

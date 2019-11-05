@@ -15,9 +15,9 @@ spring:
   application:
     name: user-provider
   security:
-        user:
-          name: admin
-          password: 123456
+       user:
+         name: admin
+         password: 123456
 
 #配置mybatis
 mybatis:
@@ -40,5 +40,5 @@ mapper:
 eureka:
   client:
     service-url:
-       defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:8082/eureka/
+       defaultZone: http://admin:123456@127.0.0.1:8082/eureka/
 

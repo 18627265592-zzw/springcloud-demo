@@ -3,15 +3,16 @@ package com.eastday.demo.user;
 import lombok.Data;
 import tk.mybatis.mapper.annotation.KeySql;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
+@Table(name = "mobile")
 public class Mobile {
 
     @Id
     @KeySql(useGeneratedKeys = true)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private String mid;
 
     @Column(name="uid")
