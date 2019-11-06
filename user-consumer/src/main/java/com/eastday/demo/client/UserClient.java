@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@FeignClient("user-provider")
+@FeignClient(name = "user-provider",configuration=FeignConfig.class)
 public interface UserClient {
 
     @PostMapping(value="/user/smsLogin/{phone}/{code}")

@@ -1,7 +1,7 @@
 package com.eastday.demo.user;
 
 import lombok.Data;
-import tk.mybatis.mapper.annotation.KeySql;
+
 
 import javax.persistence.*;
 import java.util.Date;
@@ -12,7 +12,6 @@ import java.util.List;
 public class Menu {
 
     @Id
-    @KeySql(useGeneratedKeys = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer menuId;//主键
 

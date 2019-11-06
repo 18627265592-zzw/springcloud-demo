@@ -1,7 +1,6 @@
 package com.eastday.demo.user;
 
 import lombok.Data;
-import tk.mybatis.mapper.annotation.KeySql;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,7 +10,6 @@ import java.util.Date;
 public class Mobile {
 
     @Id
-    @KeySql(useGeneratedKeys = true)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private String mid;
 
