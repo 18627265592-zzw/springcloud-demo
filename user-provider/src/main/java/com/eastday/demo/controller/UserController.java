@@ -1,12 +1,14 @@
 package com.eastday.demo.controller;
 
-import com.eastday.demo.user.RetDto;
 import com.eastday.demo.service.UserService;
+import com.eastday.demo.user.RetDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -45,10 +47,11 @@ public class UserController {
      * @param code
      * @return
      */
-    @GetMapping(value = "checkKaptcha/{code}")
-    public RetDto kaptchaLogin(@PathVariable String code, HttpServletRequest request){
+    /*@GetMapping(value = "checkKaptcha/{code}")
+    public RetDto checkKaptcha(@PathVariable String code, HttpServletRequest request){
+        System.out.println("-------------"+request.getSession().getId());
         return userService.checkKaptcha(code,request);
-    }
+    }*/
 
 
 }

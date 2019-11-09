@@ -7,3 +7,15 @@ eureka:
 spring:
   application:
     name: user-consumer
+  security:
+         user:
+           name: admin
+           password: 123456
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE  #加上这个就可以获取到HttpServletRequest
+          thread:
+            timeoutInMilliseconds: 10000

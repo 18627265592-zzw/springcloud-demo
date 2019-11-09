@@ -36,6 +36,12 @@ mapper:
     not-empty: true
     identity: MYSQL
 
+logging:
+    level:
+      #显示SQL
+      mapper: debug
+      #打印日志
+      com.eastday.demo: debug
 
 eureka:
   client:

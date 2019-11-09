@@ -1,10 +1,15 @@
-package com.eastday.demo.util;
+package com.eastday.demo.config;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.util.Config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Properties;
 
 @Component
@@ -35,5 +40,12 @@ public class KaptchaConfig {
         defaultKaptcha.setConfig(config);
 
         return defaultKaptcha;
+    }
+
+    public HttpSession session() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+        HttpServletRequest request = servletRequestAttributes.getRequest();
+        return request.getSession();
     }
 }

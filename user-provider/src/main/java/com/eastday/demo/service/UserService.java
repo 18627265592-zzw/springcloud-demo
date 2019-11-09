@@ -5,10 +5,7 @@ import com.eastday.demo.dao.IUserDao;
 import com.eastday.demo.user.Mobile;
 import com.eastday.demo.user.RetDto;
 import com.eastday.demo.user.User;
-import com.eastday.demo.util.DateUtils;
-import com.eastday.demo.util.DesUtil;
-import com.eastday.demo.util.JwtUtils;
-import com.eastday.demo.util.StringUtil;
+import com.eastday.demo.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +37,7 @@ public class UserService {
 
     @Autowired
     private StringUtil stringUtil;
+
 
     /**
      *手机验证码登录
@@ -108,16 +107,17 @@ public class UserService {
      * @param code
      * @return
      */
-    public RetDto checkKaptcha(String code, HttpServletRequest request) {
+    /*public RetDto checkKaptcha(String code, HttpServletRequest request) {
+        HttpSession session = request.getSession();
         if(code==null || "".equals(code)){
             return new RetDto(false,1,null);//验证码为空
         }
-        if(!code.equals(request.getSession().getAttribute("rightCode"))){
+        if(!code.equals(session.getAttribute("rightCode"))){
             return new RetDto(false,2,null);//验证码有误
         }
-        request.getSession().removeAttribute("rightCode");
+        session.removeAttribute("rightCode");
         return new RetDto(true,0,null);//验证码通过
-    }
+    }*/
 
     public boolean checkPhone(String phone){
         if(stringUtil.isMobile(phone)){
