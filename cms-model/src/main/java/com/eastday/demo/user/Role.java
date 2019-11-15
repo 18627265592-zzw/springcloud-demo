@@ -16,7 +16,7 @@ public class Role {
     @Column(name = "role_name")
     private String roleName;//角色名
 
-    /*@Column(name = "role_code")
+    /*@Sort(name = "role_code")
     private String roleCode;//角色代码*/
 
     @Column(name = "create_time")

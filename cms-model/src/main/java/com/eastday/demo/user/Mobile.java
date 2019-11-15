@@ -11,10 +11,10 @@ public class Mobile {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private String mid;
+    private Integer mid;
 
-    @Column(name="uid")
-    private Integer uid;
+    @Column(name="user_id")
+    private String userId;
 
     @Column(name="mobile_phone")
     private String mobilePhone;//手机号

@@ -14,7 +14,7 @@ public class UserService {
      * @param code
      * @return
      */
-    public RetDto checkKaptcha(String code, HttpServletRequest request) {
+    public RetDto checkKaptcha( String code, HttpServletRequest request) {
         HttpSession session = request.getSession();
         if(code==null || "".equals(code)){
             return new RetDto(false,1,null);//验证码为空
@@ -23,6 +23,10 @@ public class UserService {
             return new RetDto(false,2,null);//验证码有误
         }
         session.removeAttribute("rightCode");
+        //验证码正确，发送短信
+
+        //模拟发送短信
+
         return new RetDto(true,0,null);//验证码通过
     }
 }

@@ -15,7 +15,7 @@ public class UserAndRole {
     private Integer id;
 
     @Column(name = "user_id")
-    private Integer userId;//用户id
+    private String userId;//用户id
 
     @Column(name = "role_id")
     private Integer roleId;//角色id

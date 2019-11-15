@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IMenuDao extends Mapper<Menu>,MySqlMapper<Menu> {
 
-    List<Menu> selectMenuByUserId(Integer uid);
+    List<Menu> selectMenuByUserId(String userId);
 
     List<Menu> selectMenuByRoleId(Integer roleId);
 

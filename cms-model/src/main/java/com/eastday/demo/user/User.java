@@ -12,7 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Integer uid;//用户id
+    private String userId;//用户id
 
     @Column(name="user_phone")
     private String userPhone;//手机号

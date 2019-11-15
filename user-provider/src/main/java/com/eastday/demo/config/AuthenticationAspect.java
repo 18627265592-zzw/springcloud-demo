@@ -2,7 +2,8 @@ package com.eastday.demo.config;
 
 import com.eastday.demo.dao.IMenuDao;
 import com.eastday.demo.user.Menu;
-import com.eastday.demo.util.JwtUtils;
+import com.eastday.demo.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -14,13 +15,11 @@ import java.util.List;
 
 @Aspect
 @Component
+@Slf4j
 public class AuthenticationAspect {
 
     @Autowired
     private IMenuDao menuDao;
-
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @Pointcut("@annotation(authentication)")
     public void annotationPointCut(Authentication authentication) {
@@ -31,13 +30,13 @@ public class AuthenticationAspect {
     public void before(Authentication authentication){
         String permission = authentication.value();
         //权限控制业务
-        Integer uid=Integer.parseInt(jwtUtils.getTokenUserId());
-        List<Menu> menuList = menuDao.selectMenuByUserId(uid);
+        String userId=JwtUtils.getTokenUserId();
+        List<Menu> menuList = menuDao.selectMenuByUserId(userId);
         List<String> menuCodeList=new ArrayList<>();
         for(Menu menu:menuList){
             menuCodeList.add(menu.getMenuCode());
         }
-        System.out.println(menuCodeList.toString()+"---------"+permission);
+        log.debug(menuCodeList.toString()+"---------"+permission);
         if(!menuCodeList.contains(permission)){
             throw new RuntimeException("权限不足");
         }

@@ -1,4 +1,4 @@
-package com.eastday.demo;
+package com.eastday.demo.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

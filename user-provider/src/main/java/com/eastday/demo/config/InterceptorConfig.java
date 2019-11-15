@@ -7,7 +7,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.eastday.demo.dao.IUserDao;
 import com.eastday.demo.user.User;
-import com.eastday.demo.util.JwtUtils;
+import com.eastday.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -21,9 +21,6 @@ public class InterceptorConfig implements HandlerInterceptor {
 
     @Autowired
     private IUserDao userDao;
-
-    @Autowired
-    private JwtUtils jwt;
 
 
     @Override
@@ -50,11 +47,10 @@ public class InterceptorConfig implements HandlerInterceptor {
                 if (accessToken == null) {
                     throw new RuntimeException("token不存在，请重新登录");
                 }
-                // 获取 token 中的 uid
+                // 获取 token 中的 userId
                 String userId;
                 try {
-                    userId = jwt.getTokenUserId();
-                    System.out.println("_________________"+userId);
+                    userId = JwtUtils.getTokenUserId();
                 } catch (JWTDecodeException j) {
                     throw new RuntimeException("401");
                 }
@@ -62,8 +58,8 @@ public class InterceptorConfig implements HandlerInterceptor {
                 if (user == null) {
                     throw new RuntimeException("用户不存在，请重新登录");
                 }
-                // 解密token 秘钥是用户手机号
-                JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getUserPhone())).build();
+                // 解密token 秘钥是用户id
+                JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getUserId())).build();
                 try {
                     jwtVerifier.verify(accessToken);
                 } catch (JWTVerificationException e) {

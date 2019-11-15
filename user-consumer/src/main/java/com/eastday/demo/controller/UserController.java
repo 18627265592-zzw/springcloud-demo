@@ -7,6 +7,7 @@ import com.google.code.kaptcha.impl.DefaultKaptcha;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -24,6 +25,9 @@ public class UserController {
     @Autowired
     private UserClient userClient;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     //验证码工具
     @Autowired
     private DefaultKaptcha defaultKaptcha;
@@ -37,8 +41,8 @@ public class UserController {
      * @param code
      * @return
      */
-    @PostMapping(value="smsLogin/{phone}/{code}")
-    public RetDto smsLogin(@PathVariable("phone") String phone,@PathVariable(name = "code") String code){
+    @PostMapping(value="smsLogin")
+    public RetDto smsLogin(@RequestParam("phone") String phone,@RequestParam(name = "code") String code){
        return userClient.smsLogin(phone,code);
     }
 
@@ -48,8 +52,13 @@ public class UserController {
      * @param phone
      * @return
      */
-    @PostMapping(value="sendCode/{phone}")
-    public RetDto sendCode(@PathVariable("phone") String phone){
+    @PostMapping(value="sendCode")
+    public RetDto sendCode(@RequestParam("phone") String phone){
+        /*String url="";
+        RetDto retDto=restTemplate.getForObject(url,RetDto.class);
+        //发送成功：执行service
+        //发送失败：不执行
+        //返回结果*/
         return userClient.sendCode(phone);
     }
 
@@ -59,8 +68,8 @@ public class UserController {
      * @param code
      * @return
      */
-    @GetMapping(value = "checkKaptcha/{code}")
-    public RetDto checkKaptcha(@PathVariable("code") String code,HttpServletRequest request){
+    @PostMapping(value = "checkKaptcha")
+    public RetDto checkKaptcha(@RequestParam("code") String code,HttpServletRequest request){
         return userService.checkKaptcha(code,request);
     }
 

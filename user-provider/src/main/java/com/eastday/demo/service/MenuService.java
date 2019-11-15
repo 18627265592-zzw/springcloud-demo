@@ -4,10 +4,7 @@ import com.eastday.demo.dao.IMenuDao;
 import com.eastday.demo.dao.IRoleAndMenuDao;
 import com.eastday.demo.dao.IRoleDao;
 import com.eastday.demo.dao.IUserAndRoleDao;
-import com.eastday.demo.user.Menu;
-import com.eastday.demo.user.Role;
-import com.eastday.demo.user.RoleAndMenu;
-import com.eastday.demo.user.UserAndRole;
+import com.eastday.demo.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +25,8 @@ public class MenuService {
     @Autowired
     private IUserAndRoleDao userAndRoleDao;
 
-    public List<Menu> findMenuByUserId(Integer uid){
-        List<Menu> allMenus = menuDao.selectMenuByUserId(uid);
+    public List<Menu> findMenuByUserId(String userId){
+        List<Menu> allMenus = menuDao.selectMenuByUserId(userId);
         List<Menu> menus=new ArrayList<>();
         for(Menu menu: allMenus){
             if(menu.getParentId()==0 && menu.getLever()==1){  //添加1级菜单
@@ -72,26 +69,26 @@ public class MenuService {
         return map;
     }
 
-    public String addRole(String roleName){
-        String returnstr="true";
+    public RetDto addRole(String roleName){
+        RetDto retDto=new RetDto(true, 0, null);// 0：成功
         try {
             Role role = new Role();
             role.setRoleName(roleName);
             role.setCreateTime(new Date());
             roleDao.insertSelective(role);
         }catch (Exception e){
-            returnstr="false";
+            retDto=new RetDto(false, 1, null);// 1：操作失败
             e.printStackTrace();
         }
-        return returnstr;
+        return retDto;
     }
 
     public List<Menu> findMenuByRoleId(Integer roleId){
         return menuDao.selectMenuByRoleId(roleId);
     }
 
-    public String updateMenuByRoleId(List<RoleAndMenu> list){
-        String returnstr="true";
+    public RetDto updateMenuByRoleId(List<RoleAndMenu> list){
+        RetDto retDto=new RetDto(true, 0, null);// 0：成功
         try {
             RoleAndMenu roleAndMenu = new RoleAndMenu();
             //取roleId
@@ -101,15 +98,15 @@ public class MenuService {
             //重新添加角色权限
             roleAndMenuDao.insertList(list);
         }catch (Exception e){
-            returnstr="false";
+            retDto=new RetDto(false, 1, null);// 1：操作失败
             e.printStackTrace();
         }
-        return returnstr;
+        return retDto;
     }
 
 
-    public String updateUserAndRole(Integer userId,Integer roleId){
-        String returnstr="true";
+    public RetDto updateUserAndRole(String userId,Integer roleId){
+        RetDto retDto=new RetDto(true, 0, null);// 0：成功
         try {
             UserAndRole userAndRole = new UserAndRole();
             userAndRole.setUserId(userId);
@@ -122,10 +119,10 @@ public class MenuService {
             }
 
         }catch (Exception e){
-            returnstr="false";
+            retDto=new RetDto(false, 1, null);// 1：操作失败
             e.printStackTrace();
         }
-        return returnstr;
+        return retDto;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.eastday.demo.util;
+package com.eastday.demo.utils;
 
 import java.security.MessageDigest;
 

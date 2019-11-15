@@ -1,4 +1,4 @@
-package com.eastday.demo.util;
+package com.eastday.demo.utils;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

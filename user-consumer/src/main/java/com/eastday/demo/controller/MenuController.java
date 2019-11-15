@@ -2,6 +2,7 @@ package com.eastday.demo.controller;
 
 import com.eastday.demo.client.MenuClient;
 import com.eastday.demo.user.Menu;
+import com.eastday.demo.user.RetDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +20,12 @@ public class MenuController {
 
     /**
      * 获取用户菜单权限列表
-     * @param uid 用户id
+     * @param userId 用户id
      * @return 用户权限列表
      */
-    @GetMapping(value = "/{uid}")
-    public List<Menu> findMenuByUserId(@PathVariable("uid") Integer uid){
-        return menuClient.findMenuByUserId(uid);
+    @PostMapping(value = "")
+    public List<Menu> findMenuByUserId(@RequestParam("userId") String userId){
+        return menuClient.findMenuByUserId(userId);
     }
 
 
@@ -43,8 +44,8 @@ public class MenuController {
      * @param roleName 角色名称
      * @return 'true':新增成功  'false':新增失败
      */
-    @PostMapping(value = "/role")
-    public String addRole(String roleName){
+    @GetMapping(value = "/role")
+    public RetDto addRole(String roleName){
         return menuClient.addRole(roleName);
     }
 
@@ -54,8 +55,8 @@ public class MenuController {
      * @param roleId
      * @return 权限对象集合
      */
-    @GetMapping(value = "/role/{roleId}")
-    public List<Menu> findMenuByRoleId(@PathVariable("roleId") Integer roleId){
+    @PostMapping(value = "/role")
+    public List<Menu> findMenuByRoleId(@RequestParam("roleId") Integer roleId){
         return menuClient.findMenuByRoleId(roleId);
     }
 
@@ -66,8 +67,8 @@ public class MenuController {
      * @param menuIds 权限id字符串，以','分割
      * @return true':调整成功  'false':调整失败
      */
-    @PostMapping(value = "/role/{roleId}/{menuIds}")
-    public String updateMenuByRoleId(@PathVariable("roleId") Integer roleId, @PathVariable("menuIds") String menuIds){
+    @PostMapping(value = "/roleAndMenu")
+    public RetDto updateMenuByRoleId(@RequestParam("roleId") Integer roleId, @RequestParam("menuIds") String menuIds){
         return menuClient.updateMenuByRoleId(roleId,menuIds);
     }
 
@@ -78,8 +79,8 @@ public class MenuController {
      * @param roleId 角色id
      * @return true':调整成功  'false':调整失败
      */
-    @PutMapping(value = "/role/{userId}/{roleId}")
-    public String updateUserAndRole(@PathVariable("userId") Integer userId, @PathVariable("roleId") Integer roleId){
+    @PostMapping(value = "/userAndRole")
+    public RetDto updateUserAndRole(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId){
         return menuClient.updateUserAndRole(userId,roleId);
     }
 }

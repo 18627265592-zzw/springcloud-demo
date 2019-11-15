@@ -1,6 +1,4 @@
-package com.eastday.demo.util;
-import org.springframework.stereotype.Component;
-
+package com.eastday.demo.utils;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -8,7 +6,6 @@ import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import java.nio.charset.Charset;
 
-@Component
 public class DesUtil {
 	 private static final String  SKEY    = "abcdefgh";
 	 private static final Charset CHARSET = Charset.forName("UTF-8");

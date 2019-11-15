@@ -5,19 +5,21 @@ import com.eastday.demo.dao.IUserDao;
 import com.eastday.demo.user.Mobile;
 import com.eastday.demo.user.RetDto;
 import com.eastday.demo.user.User;
-import com.eastday.demo.util.*;
+import com.eastday.demo.utils.DateUtils;
+import com.eastday.demo.utils.DesUtil;
+import com.eastday.demo.utils.JwtUtils;
+import com.eastday.demo.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 
 @Service(value = "userService")
 @Slf4j
@@ -29,22 +31,13 @@ public class UserService {
     @Autowired
     private IMobileDao mobileDao;
 
-    @Autowired
-    private DesUtil des;
-
-    @Autowired
-    private JwtUtils jwt;
-
-    @Autowired
-    private StringUtil stringUtil;
-
-
     /**
      *手机验证码登录
      * @param phone
      * @param code
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRED,readOnly = false)
     public RetDto smsLogin(String phone, String code, HttpServletResponse response) {
         //验证手机号
         if(!checkPhone(phone)){
@@ -57,7 +50,7 @@ public class UserService {
         }else{
             int MM =(int)DateUtils.getDistanceMinTimes(new Date(),mobile.getMobileSendTime()); // 共计分钟数*/
             System.out.println("间隔时间------"+MM+"分钟");
-            if (MM > jwt.EFFECTIVE_TIME) {// 时间间隔大于五分钟 验证码失效
+            if (MM > JwtUtils.EFFECTIVE_TIME) {// 时间间隔大于五分钟 验证码失效
                 return new RetDto(false,3,null); //3:验证码失效
             }else if(mobile.getMobileUsable()==1){//验证码已使用
                 return new RetDto(false,4,null); //4:验证码已使用
@@ -65,7 +58,7 @@ public class UserService {
                 User user = refreshLastLoginTime(phone);
                 updateMobileUsable(phone);
                 Map<String,Object> map=new HashMap<>();
-                map.put("uid",user.getUid());
+                map.put("userId",user.getUserId());
                 map.put("accessToken",user.getAccessToken());
                 //accessToken放入cookie
                 Cookie cookie = new Cookie("accessToken", user.getAccessToken());
@@ -81,11 +74,13 @@ public class UserService {
      * @param phone
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRED,readOnly = false)
     public RetDto sendCode(String phone) {
         if(!checkPhone(phone)){
             return new RetDto(false,1,null);
         }else{
-            String random = stringUtil.NumberCode(6);
+            //发送验证码
+            String random = StringUtil.NumberCode(6);
             log.debug("验证码————"+random);
             //查询数据库手机号是否存在
             User user=findUserByPhone(phone);
@@ -95,8 +90,8 @@ public class UserService {
                 return new RetDto(true,0,null);
             }else{
                 log.debug("发送成功");
-                int uid = addUser(phone);
-                addMobile(uid,phone,random);
+                String userId = addUser(phone);
+                addMobile(userId,phone,random);
                 return new RetDto(true,0,null);
             }
         }
@@ -104,7 +99,7 @@ public class UserService {
 
     /**
      * 验证图像验证码
-     * @param code
+     * @param
      * @return
      */
     /*public RetDto checkKaptcha(String code, HttpServletRequest request) {
@@ -120,7 +115,7 @@ public class UserService {
     }*/
 
     public boolean checkPhone(String phone){
-        if(stringUtil.isMobile(phone)){
+        if(StringUtil.isMobile(phone)){
             return true;
         }else{
             return false;
@@ -129,7 +124,7 @@ public class UserService {
 
     public User findUserByPhone(String phone){
         User user=new User();
-        user.setUserPhone(des.encrypt(phone));
+        user.setUserPhone(DesUtil.encrypt(phone));
         return userDao.selectOne(user);
     }
 
@@ -143,17 +138,18 @@ public class UserService {
         mobileDao.updateByPrimaryKeySelective(mobile);
     }
 
-    public int addUser(String phone){
+    public String addUser(String phone){
         User user=new User();
-        user.setUserPhone(des.encrypt(phone));
+        user.setUserId(StringUtil.generateShortUuid());
+        user.setUserPhone(DesUtil.encrypt(phone));
         user.setUserCreatTime(new Date());
         userDao.insertSelective(user);
-        return user.getUid();
+        return user.getUserId();
     }
 
-    public void addMobile(int uid,String phone,String code){
+    public void addMobile(String userId,String phone,String code){
         Mobile mobile=new Mobile();
-        mobile.setUid(uid);
+        mobile.setUserId(userId);
         mobile.setMobilePhone(phone);
         mobile.setMobileCode(code);
         mobile.setMobileSendTime(new Date());
@@ -161,7 +157,7 @@ public class UserService {
         mobileDao.insertSelective(mobile);
     }
 
-    public Mobile findUserAndCode(String phone,String code){
+    public Mobile findUserAndCode(String phone, String code){
         Mobile mobile=new Mobile();
         mobile.setMobilePhone(phone);
         mobile.setMobileCode(code);
@@ -170,9 +166,9 @@ public class UserService {
 
     public User refreshLastLoginTime(String phone){
         User user = new User();
-        user.setUserPhone(des.encrypt(phone));
+        user.setUserPhone(DesUtil.encrypt(phone));
         User user2 = userDao.selectOne(user);
-        String accessToken=jwt.getToken(user2);
+        String accessToken=JwtUtils.getToken(user2);
         user2.setAccessToken(accessToken);
         user2.setUserLastLoginTime(new Date());
         userDao.updateByPrimaryKeySelective(user2);

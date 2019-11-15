@@ -2,8 +2,11 @@ package com.eastday.demo.client;
 
 import com.eastday.demo.config.FeignConfig;
 import com.eastday.demo.user.Menu;
+import com.eastday.demo.user.RetDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
@@ -11,21 +14,21 @@ import java.util.Map;
 @FeignClient(name = "user-provider",configuration=FeignConfig.class)
 public interface MenuClient {
 
-    @GetMapping(value = "/menu/{uid}")
-    List<Menu> findMenuByUserId(@PathVariable(name = "uid") Integer uid);
+    @PostMapping(value = "/menu")
+    List<Menu> findMenuByUserId(@RequestParam("userId") String userId);
 
     @GetMapping(value = "/menu/roleAndMenu")
     Map<Object,Object> findRoleAndMenu();
 
+    @GetMapping(value = "/menu/role")
+    RetDto addRole(@RequestParam("roleName") String roleName);
+
     @PostMapping(value = "/menu/role")
-    String addRole(String roleName);
+    List<Menu> findMenuByRoleId(@RequestParam("roleId") Integer roleId);
 
-    @GetMapping(value = "/menu/role/{roleId}")
-    List<Menu> findMenuByRoleId(@PathVariable("roleId") Integer roleId);
+    @PostMapping(value = "/menu/roleAndMenu")
+    RetDto updateMenuByRoleId(@RequestParam("roleId") Integer roleId, @RequestParam("menuIds") String menuIds);
 
-    @PostMapping(value = "/menu/role/{roleId}/{menuIds}")
-    String updateMenuByRoleId(@PathVariable("roleId") Integer roleId, @PathVariable("menuIds") String menuIds);
-
-    @PutMapping(value = "/menu/role/{userId}/{roleId}")
-    String updateUserAndRole(@PathVariable("userId") Integer userId, @PathVariable("roleId") Integer roleId);
+    @PostMapping(value = "/menu/userAndRole")
+    RetDto updateUserAndRole(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId);
 }

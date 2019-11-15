@@ -2,10 +2,11 @@ package com.eastday.demo.controller;
 
 import com.eastday.demo.config.Authentication;
 import com.eastday.demo.config.UserLoginToken;
-import com.eastday.demo.user.Menu;
-import com.eastday.demo.user.RoleAndMenu;
 import com.eastday.demo.service.MenuService;
-import com.eastday.demo.util.JwtUtils;
+import com.eastday.demo.user.Menu;
+import com.eastday.demo.user.RetDto;
+import com.eastday.demo.user.RoleAndMenu;
+import com.eastday.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
@@ -23,23 +24,20 @@ public class MenuController {
     @Autowired
     private MenuService menuService;
 
-    @Autowired
-    private JwtUtils jwt;
-
     //默认先经过过滤器校验是否登录，再aop验证权限
     /**
      * 获取用户菜单权限列表
-     * @param uid 用户id
+     * @param userId 用户id
      * @return 用户权限列表
      */
-    @GetMapping(value = "/{uid}")
+    @PostMapping(value = "")
     @UserLoginToken
     @Authentication(value = "user_permission")
-    public List<Menu> findMenuByUserId(@PathVariable Integer uid){
-        System.out.println(jwt.getTokenUserId());
-        //判断参数id与token中uid是否一致
-        if(uid == Integer.parseInt(jwt.getTokenUserId())){
-            return menuService.findMenuByUserId(uid);
+    public List<Menu> findMenuByUserId(String userId){
+        //判断参数id与token中userId是否一致
+        System.out.println(userId+"----------"+JwtUtils.getTokenUserId());
+        if(JwtUtils.getTokenUserId().equals(userId)){
+            return menuService.findMenuByUserId(userId);
         }else{
             return null;
         }
@@ -63,10 +61,10 @@ public class MenuController {
      * @param roleName 角色名称
      * @return 'true':新增成功  'false':新增失败
      */
-    @PostMapping(value = "/role")
+    @GetMapping(value = "/role")
     @UserLoginToken
     @Authentication(value = "user_permission")
-    public String addRole(String roleName){
+    public RetDto addRole(String roleName){
         return menuService.addRole(roleName);
     }
 
@@ -75,10 +73,10 @@ public class MenuController {
      * @param roleId
      * @return 权限对象集合
      */
-    @GetMapping(value = "/role/{roleId}")
+    @PostMapping(value = "/role")
     @UserLoginToken
     @Authentication(value = "user_permission")
-    public List<Menu> findMenuByRoleId(@PathVariable Integer roleId){
+    public List<Menu> findMenuByRoleId(Integer roleId){
         return menuService.findMenuByRoleId(roleId);
     }
 
@@ -86,18 +84,17 @@ public class MenuController {
     /**
      * 角色权限调整
      * @param roleId 角色id
-     * @param menuIds 权限id字符串，以','分割
+     * @param menuIds 权限id数组
      * @return true':调整成功  'false':调整失败
      */
-    @PostMapping(value = "/role/{roleId}/{menuIds}")
+    @PostMapping(value = "/roleAndMenu")
     @UserLoginToken
     @Authentication(value = "user_permission")
-    public String updateMenuByRoleId(@PathVariable Integer roleId, @PathVariable String menuIds){
-        String[] ids =menuIds.split(",");
+    public RetDto updateMenuByRoleId(Integer roleId,String[] menuIds){
         List<RoleAndMenu> list = new ArrayList<>();
-        for(int i=0;i<ids.length;i++){
+        for(int i=0;i<menuIds.length;i++){
             RoleAndMenu roleAndMenu = new RoleAndMenu();
-            roleAndMenu.setMenuId(Integer.parseInt(ids[i]));
+            roleAndMenu.setMenuId(Integer.parseInt(menuIds[i]));
             roleAndMenu.setRoleId(roleId);
             roleAndMenu.setCreateTime(new Date());
             list.add(roleAndMenu);
@@ -112,10 +109,10 @@ public class MenuController {
      * @param roleId 角色id
      * @return true':调整成功  'false':调整失败
      */
-    @PutMapping(value = "/role/{userId}/{roleId}")
+    @PostMapping(value = "/userAndRole")
     @UserLoginToken
     @Authentication(value = "user_permission")
-    public String updateUserAndRole(@PathVariable Integer userId, @PathVariable Integer roleId){
+    public RetDto updateUserAndRole(String userId,Integer roleId){
         return menuService.updateUserAndRole(userId,roleId);
     }
 
