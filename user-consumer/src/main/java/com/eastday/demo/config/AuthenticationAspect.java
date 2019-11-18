@@ -1,6 +1,6 @@
 package com.eastday.demo.config;
 
-import com.eastday.demo.dao.IMenuDao;
+import com.eastday.demo.client.MenuClient;
 import com.eastday.demo.user.Menu;
 import com.eastday.demo.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.List;
 public class AuthenticationAspect {
 
     @Autowired
-    private IMenuDao menuDao;
+    private MenuClient menuClient;
 
     @Pointcut("@annotation(authentication)")
     public void annotationPointCut(Authentication authentication) {
@@ -31,7 +31,7 @@ public class AuthenticationAspect {
         String permission = authentication.value();
         //权限控制业务
         String userId=JwtUtils.getTokenUserId();
-        List<Menu> menuList = menuDao.selectMenuByUserId(userId);
+        List<Menu> menuList = menuClient.selectMenuByUserId(userId);
         List<String> menuCodeList=new ArrayList<>();
         for(Menu menu:menuList){
             menuCodeList.add(menu.getMenuCode());

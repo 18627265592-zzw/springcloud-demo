@@ -11,6 +11,9 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * 配置类， 微服务之间传递token
+ */
 @Configuration
 public class FeginInterceptor implements RequestInterceptor {
     @Override

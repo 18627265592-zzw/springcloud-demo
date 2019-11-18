@@ -125,4 +125,8 @@ public class MenuService {
         return retDto;
     }
 
+    public List<Menu> selectMenuByUserId(String userId){
+       return menuDao.selectMenuByUserId(userId);
+    }
+
 }

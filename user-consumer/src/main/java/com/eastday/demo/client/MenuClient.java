@@ -31,4 +31,7 @@ public interface MenuClient {
 
     @PostMapping(value = "/menu/userAndRole")
     RetDto updateUserAndRole(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId);
+
+    @PostMapping(value = "/menu/selectMenuByUserId")
+    List<Menu> selectMenuByUserId(@RequestParam("userId") String userId);
 }

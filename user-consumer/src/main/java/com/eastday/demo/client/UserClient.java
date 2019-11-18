@@ -2,6 +2,7 @@ package com.eastday.demo.client;
 
 import com.eastday.demo.config.FeignConfig;
 import com.eastday.demo.user.RetDto;
+import com.eastday.demo.user.User;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,5 +15,8 @@ public interface UserClient {
 
     @PostMapping(value="/user/sendCode")
     RetDto sendCode(@RequestParam("phone") String phone);
+
+    @PostMapping(value="/user/selectByPrimaryKey")
+    User selectByPrimaryKey(@RequestParam("userId") String userId);
 
 }

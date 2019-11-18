@@ -1,7 +1,5 @@
 package com.eastday.demo.controller;
 
-import com.eastday.demo.config.Authentication;
-import com.eastday.demo.config.UserLoginToken;
 import com.eastday.demo.service.MenuService;
 import com.eastday.demo.user.Menu;
 import com.eastday.demo.user.RetDto;
@@ -30,9 +28,8 @@ public class MenuController {
      * @param userId 用户id
      * @return 用户权限列表
      */
+
     @PostMapping(value = "")
-    @UserLoginToken
-    @Authentication(value = "user_permission")
     public List<Menu> findMenuByUserId(String userId){
         //判断参数id与token中userId是否一致
         System.out.println(userId+"----------"+JwtUtils.getTokenUserId());
@@ -49,8 +46,6 @@ public class MenuController {
      * @return 角色对象:权限名称集合
      */
     @GetMapping(value = "/roleAndMenu")
-    @UserLoginToken
-    @Authentication(value = "user_permission")
     public Map<Object,Object> findRoleAndMenu(){
         return menuService.findRoleAndMenu();
     }
@@ -62,8 +57,6 @@ public class MenuController {
      * @return 'true':新增成功  'false':新增失败
      */
     @GetMapping(value = "/role")
-    @UserLoginToken
-    @Authentication(value = "user_permission")
     public RetDto addRole(String roleName){
         return menuService.addRole(roleName);
     }
@@ -74,8 +67,6 @@ public class MenuController {
      * @return 权限对象集合
      */
     @PostMapping(value = "/role")
-    @UserLoginToken
-    @Authentication(value = "user_permission")
     public List<Menu> findMenuByRoleId(Integer roleId){
         return menuService.findMenuByRoleId(roleId);
     }
@@ -88,8 +79,6 @@ public class MenuController {
      * @return true':调整成功  'false':调整失败
      */
     @PostMapping(value = "/roleAndMenu")
-    @UserLoginToken
-    @Authentication(value = "user_permission")
     public RetDto updateMenuByRoleId(Integer roleId,String[] menuIds){
         List<RoleAndMenu> list = new ArrayList<>();
         for(int i=0;i<menuIds.length;i++){
@@ -110,10 +99,18 @@ public class MenuController {
      * @return true':调整成功  'false':调整失败
      */
     @PostMapping(value = "/userAndRole")
-    @UserLoginToken
-    @Authentication(value = "user_permission")
     public RetDto updateUserAndRole(String userId,Integer roleId){
         return menuService.updateUserAndRole(userId,roleId);
+    }
+
+    /**
+     * 内部接口，验证权限调用
+     * @param userId
+     * @return
+     */
+    @PostMapping(value = "/selectMenuByUserId")
+    public List<Menu> selectMenuByUserId(String userId){
+        return menuService.selectMenuByUserId(userId);
     }
 
 

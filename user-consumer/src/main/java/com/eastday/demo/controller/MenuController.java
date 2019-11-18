@@ -1,6 +1,8 @@
 package com.eastday.demo.controller;
 
 import com.eastday.demo.client.MenuClient;
+import com.eastday.demo.config.Authentication;
+import com.eastday.demo.config.UserLoginToken;
 import com.eastday.demo.user.Menu;
 import com.eastday.demo.user.RetDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ public class MenuController {
      * @param userId 用户id
      * @return 用户权限列表
      */
+    @UserLoginToken
+    @Authentication(value = "user_permission")
     @PostMapping(value = "")
     public List<Menu> findMenuByUserId(@RequestParam("userId") String userId){
         return menuClient.findMenuByUserId(userId);
@@ -33,6 +37,8 @@ public class MenuController {
      * 查询所有角色及对应菜单列表
      * @return 角色对象:权限名称集合
      */
+    @UserLoginToken
+    @Authentication(value = "user_permission")
     @GetMapping(value = "/roleAndMenu")
     public Map<Object,Object> findRoleAndMenu(){
         return menuClient.findRoleAndMenu();
@@ -55,6 +61,8 @@ public class MenuController {
      * @param roleId
      * @return 权限对象集合
      */
+    @UserLoginToken
+    @Authentication(value = "user_permission")
     @PostMapping(value = "/role")
     public List<Menu> findMenuByRoleId(@RequestParam("roleId") Integer roleId){
         return menuClient.findMenuByRoleId(roleId);
@@ -67,6 +75,8 @@ public class MenuController {
      * @param menuIds 权限id字符串，以','分割
      * @return true':调整成功  'false':调整失败
      */
+    @UserLoginToken
+    @Authentication(value = "user_permission")
     @PostMapping(value = "/roleAndMenu")
     public RetDto updateMenuByRoleId(@RequestParam("roleId") Integer roleId, @RequestParam("menuIds") String menuIds){
         return menuClient.updateMenuByRoleId(roleId,menuIds);
@@ -79,6 +89,8 @@ public class MenuController {
      * @param roleId 角色id
      * @return true':调整成功  'false':调整失败
      */
+    @UserLoginToken
+    @Authentication(value = "user_permission")
     @PostMapping(value = "/userAndRole")
     public RetDto updateUserAndRole(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId){
         return menuClient.updateUserAndRole(userId,roleId);

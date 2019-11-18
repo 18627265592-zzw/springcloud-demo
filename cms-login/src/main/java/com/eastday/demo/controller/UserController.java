@@ -2,6 +2,7 @@ package com.eastday.demo.controller;
 
 import com.eastday.demo.service.UserService;
 import com.eastday.demo.user.RetDto;
+import com.eastday.demo.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,5 +40,15 @@ public class UserController {
     @PostMapping(value = "sendCode")
     public RetDto sendCode(String phone) {
         return userService.sendCode(phone);
+    }
+
+    /**
+     * 内部接口，验证token调用
+     * @param userId
+     * @return
+     */
+    @PostMapping(value = "selectByPrimaryKey")
+    public User selectByPrimaryKey(String userId){
+        return userService.selectByPrimaryKey(userId);
     }
 }

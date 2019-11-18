@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.eastday.demo.dao.IUserDao;
+import com.eastday.demo.client.UserClient;
 import com.eastday.demo.user.User;
 import com.eastday.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 public class InterceptorConfig implements HandlerInterceptor {
 
     @Autowired
-    private IUserDao userDao;
+    private UserClient userClient;
 
 
     @Override
@@ -54,7 +54,7 @@ public class InterceptorConfig implements HandlerInterceptor {
                 } catch (JWTDecodeException j) {
                     throw new RuntimeException("401");
                 }
-                User user = userDao.selectByPrimaryKey(userId);
+                User user = userClient.selectByPrimaryKey(userId);
                 if (user == null) {
                     throw new RuntimeException("用户不存在，请重新登录");
                 }

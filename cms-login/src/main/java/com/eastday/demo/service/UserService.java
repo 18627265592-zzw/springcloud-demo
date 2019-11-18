@@ -114,6 +114,10 @@ public class UserService {
         return new RetDto(true,0,null);//验证码通过
     }*/
 
+    public User selectByPrimaryKey(String userId){
+        return userDao.selectByPrimaryKey(userId);
+    }
+
     public boolean checkPhone(String phone){
         if(StringUtil.isMobile(phone)){
             return true;
