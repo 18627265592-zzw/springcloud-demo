@@ -13,9 +13,9 @@
         <module>user-consumer</module>
         <module>user-eureka</module>
         <module>cms-model</module>
-        <module>cms-news</module>
         <module>cms-login</module>
         <module>cms-utils</module>
+        <module>cms-gateway</module>
     </modules>
 
 

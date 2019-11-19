@@ -1,4 +1,4 @@
-package com.eastday.demo.news;
+package com.eastday.demo.user;
 
 import lombok.Data;
 

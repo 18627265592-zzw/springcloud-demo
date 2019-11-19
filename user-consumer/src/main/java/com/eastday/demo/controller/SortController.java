@@ -1,7 +1,7 @@
 package com.eastday.demo.controller;
 
 import com.eastday.demo.client.SortClient;
-import com.eastday.demo.news.Sort;
+import com.eastday.demo.user.Sort;
 import com.eastday.demo.user.RetDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -20,8 +20,8 @@ public class User {
     @Column(name="user_nick_name")
     private String userNickName;//昵称
 
-    @Column(name="unionId")
-    private String unionId;//微信唯一标示
+    @Column(name="openId")
+    private String openId;//微信唯一标示
 
     @Column(name="access_token")
     private String accessToken;//身份验证秘钥

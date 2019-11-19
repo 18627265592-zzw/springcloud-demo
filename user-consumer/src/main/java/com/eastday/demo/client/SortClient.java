@@ -1,7 +1,7 @@
 package com.eastday.demo.client;
 
 import com.eastday.demo.config.FeignConfig;
-import com.eastday.demo.news.Sort;
+import com.eastday.demo.user.Sort;
 import com.eastday.demo.user.RetDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

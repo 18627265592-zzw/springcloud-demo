@@ -1,7 +1,7 @@
 package com.eastday.demo.service;
 
 import com.eastday.demo.dao.ISortDao;
-import com.eastday.demo.news.Sort;
+import com.eastday.demo.user.Sort;
 import com.eastday.demo.user.RetDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
