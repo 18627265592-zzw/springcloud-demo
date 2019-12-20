@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <title>登录</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <!--[if lt IE 9]>
+    <script src="https://cdn.bootcss.com/html5shiv/r29/html5.js"></script><![endif]-->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.bootcss.com/respond.js/1.4.0/respond.js"></script><![endif]-->
+    <link href="css/bootstrap.min.css?v=1.0" rel="stylesheet">
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./layer/layer.js"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .bg {
+			 background-color: #50b7c1;
+            background-repeat: no-repeat;
+            -webkit-background-size: 100% 100%;
+            background-size: 100% 100%;
+        }
+
+
+        .bg-1 {
+            background: #fff;
+            box-shadow: 0px 10px 19.2px 0.8px rgba(14, 70, 155, 0.4);
+
+        }
+
+        .login-h {
+            height: 490px !important;
+        }
+
+        .borderNo {
+            border: none !important;
+            outline: none !important;
+            border-bottom: solid thin #e0e0e0 !important;
+        }
+
+        .paddingL {
+            padding-left: 25px !important;
+        }
+
+        .form-i {
+            position: absolute;
+            left: 5px;
+            line-height: 30px;
+        }
+
+        .color99 {
+            color: #999999;
+        }
+
+        .color00 {
+            color: #fff;
+        }
+
+
+        .form-div {
+            position: relative;
+            height: 35px !important;
+            line-height: 35px;
+        }
+
+        .form-input {
+            height: 40px !important;
+            font-size: 14px !important;
+        }
+
+        input[type="checkbox"] {
+            background: #fff !important;
+            border: solid thin #e0e0e0 !important;
+            color: #fff !important;
+        }
+
+        .border20 {
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            border-radius: 20px;
+        }
+
+
+        .main-mt030 {
+            margin-top: 30px;
+        }
+
+        .main-mb020 {
+            margin-bottom: 20px;
+        }
+
+
+        .fa1 {
+            position: absolute;
+            bottom: 0px !important;
+        }
+
+        .codebg {
+            background-color: #d9dbff;
+        }
+
+
+    </style>
+    <script type="text/javascript">
+    $(function() {
+
+        $("#sendcode").attr({"disabled":"disabled"});
+        $("#sendcode").addClass(".codebg")
+
+
+        //Enter键登录
+ 		$(document).keyup(function(event){
+			  if(event.keyCode ==13){
+				  login()
+			  }
+			});
+
+        //图形验证码输入框监听事件
+ 		$("#code").bind("input code",function () {
+ 		    var imgcode = $(this).val();
+ 		    if(imgcode.length == 4){
+                $.ajax({
+                    url: 'http://172.30.2.41:8080/user/checkKaptcha',
+                    type: 'post',
+                    datatype: 'json',
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    data: {
+                        code: imgcode
+                    },
+                    success: function (data) {
+                        if(data.success){
+                            $("#sendcode").removeAttr("disabled")
+                            $("#sendcode").removeClass(".codebg")
+                            $('#code').attr("readonly","readonly");//设为只读
+                        }else {
+                            layer.msg('验证码有误');
+                            $("#code").val("")
+                        }
+                    }
+                })
+            }
+        })
+	})
+
+
+  	//登录验证
+	function login() {
+		var phone = $("#phone").val();
+        var smscode = $("#smscode").val();
+		if(isEmpty(phone)){
+			layer.msg('手机号不能为空');
+		}else if(isEmpty(smscode)){
+			layer.msg('验证码不能为空');
+		}else {
+			layer.msg('认证中...');
+			$.ajax({
+				url : 'http://172.30.2.41:8080/user/smsLogin',
+				type : 'post',
+				datatype : 'json',
+				data : {
+                    phone : phone,
+                    code: smscode
+				},
+				success : function(data) {
+					if(data.success) {
+						layer.msg('认证成功！');
+                        sessionStorage.setItem("userId",data.content.userId);
+                        sessionStorage.setItem("accessToken",data.content.accessToken);
+						window.location.href = 'home.html';
+					} else {
+					    if(data.message == 1){
+                            layer.msg('手机号有误', {icon: 5,time: 1000 ,end: function () {
+                                    window.location.reload();
+                                }});
+                        }else if(data.message == 2 || data.message == 4){
+                            layer.msg('验证码有误', {icon: 5,time: 1000 ,end: function () {
+                                    window.location.reload();
+                                }});
+                        }else if(data.message == 3){
+                            layer.msg('验证失效', {icon: 5,time: 1000 ,end: function () {
+                                    window.location.reload();
+                                }});
+
+                        }
+
+					}
+				}
+			})
+		}
+	}
+
+	//点击更换图形验证码
+    function changeVerifyCode(img) {
+        img.src = "http://172.30.2.41:8080/user/getKaptcha?" + Math.floor(Math.random() * 100);
+    };
+    
+    function sendCmsCode() {
+        var phone = $("#phone").val();
+        $.ajax({
+            url: 'http://172.30.2.41:8080/user/sendCode',
+            type: 'post',
+            datatype: 'json',
+            data: {
+                phone: phone,
+            },
+            success: function (data) {
+                if(data.success) {
+                    layer.msg('短信发送成功，请注意查收！', {icon: 1,time: 3000 ,end: function () {
+                            layer.msg("短信验证码："+data.content.code);
+                        }});
+                }else{
+                    if(data.message == 1){
+                        layer.alert('手机号有误', {
+                            icon: 5,
+                            title: "提示"
+                        });
+                    }else if(data.message == 2){
+                        layer.alert('操作失败，请联系技术人员', {
+                            icon: 5,
+                            title: "提示"
+                        });
+                    }
+                }
+            }
+        })
+    }
+
+
+    //判断字符是否为空的方法
+    function isEmpty(obj){
+        var reg = /^\s*$/
+        if(typeof obj == undefined || obj == null || reg.test(obj)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
+</script>
+</head>
+<body class="bg">
+<div id="empty">
+
+</div>
+<div class="container login-h" id="app">
+    <div class="col-lg-6 col-md-6 col-lg-offset-3 col-md-offset-3  login-h">
+        <div class="col-lg-10 col-md-10 col-lg-offset-1 col-md-offset-1 bg-1 login-h">
+            <div class="w100 textCenter main-mb020" style="padding-top: 20px;">
+                <h3>CMS 后台登录</h3>
+            </div>
+            <div>
+                <form action="">
+                    <div class=" col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="w100 form-div main-mt30">
+                            <i class="fa fa-user color99 form-i fa1" aria-hidden="true"></i>
+                            <input type="text" class="w100 borderNo paddingL form-input"
+                                   id="phone" name="phone" placeholder="请输入手机号">
+                        </div>
+
+                        <div class="w100 form-div main-mt30">
+                            <i class="fa fa-unlock-alt color99 form-i fa1" aria-hidden="true"></i>
+                            <img src="http://172.30.2.41:8080/user/getKaptcha" onclick="changeVerifyCode(this)" id="codeimg" style="float:right;padding-right:10px"/>
+                            <input type="text" class="w50 borderNo paddingL form-input" name="code"
+                                      id="code" placeholder="请输入验证码">
+                        </div>
+
+                        <div class="w100 form-div main-mt30">
+                            <i class="fa fa-unlock-alt color99 form-i fa1" aria-hidden="true"></i>
+                            <input type="button" id="sendcode" onclick="sendCmsCode()" class="btn btn-success"
+                                   value="发送短信验证码" style="float:right;padding-right:10px">
+                            <input type="text" class="w70 borderNo paddingL form-input" name="code"
+                                   onkeyup="this.value=this.value.replace(/\s+/g,'')" id="smscode" placeholder="请输入短信验证码">
+                        </div>
+
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pd0 form-div main-mt030">
+                            <input type="button" onclick="login()"
+                                   class="w100 form-input background2 color00 border20 borderNo fontWeight main-fs18"
+                                   value="登录">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    $(function () {
+        var _height = $(window).height();
+        var _mar = ($(window).height() - $("#app").height()) / 2;
+        $('#empty').css({height: _mar + 'px'});
+    })
+</script>
+</html>

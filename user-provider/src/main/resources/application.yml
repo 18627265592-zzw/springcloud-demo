@@ -5,7 +5,7 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://localhost:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&allowMultiQueries=true
+    url: jdbc:mysql://172.30.2.41:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&autoReconnect=true&allowMultiQueries=true
     driver-class-name: com.mysql.jdbc.Driver
     filters: stat,wall,log4j
     maxActive: 20 #最大连接数
@@ -18,12 +18,15 @@ spring:
        user:
          name: admin
          password: 123456
+  servlet:
+    multipart:
+      max-file-size: 10MB
 
 #配置mybatis
 mybatis:
     mapper-locations: classpath:mapper/*.xml
     #实体类扫描地址
-    type-aliases-package: com.eastday.demo.user
+    type-aliases-package: com.eastday.demo.user;com.eastday.demo.news
     #控制台打印sql
     configuration:
         log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

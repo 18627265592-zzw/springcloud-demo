@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-table.js"></script>
+    <script src="./js/bootstrap-table-zh-CN.js"></script>
+    <script src="./layer/layer.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/bootstrap-table.css"/>
+    <!-- 导入树文件 -->
+    <link rel="stylesheet" href="./css/tree.css">
+    <script src="./js/treescroll.min2.js"></script>
+    <script type="text/javascript">
+        var sorts,sortId,a=0;
+        $(function () {
+            //getAllSort();
+            showSort();
+            
+        })
+        //获取全部栏目列表
+        function getAllSort() {
+            $.ajax({
+                url: 'http://172.30.2.41:8080/sort',
+                type: 'get',
+                datatype: 'json',
+                async: false,
+                headers: {
+                    "accessToken" : sessionStorage.getItem("accessToken"),
+                },
+                data: {
+                },
+                success: function (data) {
+                    sorts=$.parseJSON(data);
+                }
+            })
+        }
+        //显示栏目
+        function showSort() {
+            var html="<div class=\"tree\" style='width: auto;'><ul>";
+            $.ajax({
+                url: 'http://172.30.2.41:8080/sort',
+                type: 'get',
+                datatype: 'json',
+                headers: {
+                    "accessToken" : sessionStorage.getItem("accessToken"),
+                },
+                data: {
+                },
+                success: function (data) {
+                    sorts=$.parseJSON(data);
+                    $.each(sorts,function(i,v){
+                        if(v.parentId==0){
+                            html+="<li><div class=\"close_menu\"><span class='spanopen' onclick='iconclick("+v.sortId+","+v.parentId+",\""+v.sortName+"\",this)'></span><label  style='margin-left: 5px;margin-right: 5px;'></label><a onclick='chooseSort("+v.sortId+")' title=\""+v.sortName+"\">"+v.sortName+"</a></div><ul></ul></li>";
+                        }
+                    })
+                    html+="</ul></div>";
+                    $("#treebody").html(html)
+                    $(".spanopen").each(function(i,v){
+                        $(v).trigger('click');
+                    })
+                }
+            })
+        }
+
+        //菜单图标点击
+        function iconclick(sortId,parentId,sortName,obj){
+            var element=$(obj).parent().next(),html="";
+            $.each(sorts,function (i,v) {
+                if(v.parentId==sortId){
+                    html+="<li><div class=\"close_menu\" style='margin-left: 15px'><label  style='margin-left: 5px;margin-right: 5px;'></label><a onclick='chooseSort("+v.sortId+")' title=\""+v.sortName+"\">"+v.sortName+"</a></div><ul></ul></li>";
+                }
+            })
+            $(element).html(html);
+        }
+
+        //栏目选中
+        function chooseSort(obj) {
+            sortId = obj;
+            //console.log(sortId)
+        }
+
+        //添加父栏目
+        function addsort() {
+            var sortNames = "";
+            /*$(".sonsort").each(function () {
+                if(isEmpty($(this).val())){
+                    a=1
+                }else {
+                    sortNames+=$(this).val()+',';
+                }
+            })
+            sortNames= sortNames.substring(0, sortNames.length - 1);
+            console.log(sortNames);*/
+            if(isEmpty($(".sonsort").val())){
+                a=1
+            }else {
+                sortNames+=$(".sonsort").val();
+            }
+            if(a == 1){
+                layer.msg('输入不能为空');
+                a=0;
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定添加', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url : 'http://172.30.2.41:8080/sort',
+                        type : 'post',
+                        datatype : 'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data : {
+                            sortNames : sortNames
+                        },
+                        success : function(data) {
+                            if(data.success){
+                                layer.msg('添加成功', {icon: 1,time: 1000 ,end: function () {
+                                        $('#myModal1').modal('hide');
+                                        window.location.reload();
+                                    }});
+                            }else {
+                                if(data.message == 1){
+                                    layer.alert('操作失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }else if(data.message == 2){
+                                    layer.alert('父栏目重复，请重新输入', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+
+        }
+
+       /* //新增子栏目数量
+        function addSonSort() {
+            var html = "<div class=\"input-group col-sm-2\">2级栏目<input type=\"text\" id=\"dateNumber\" style=\"color: #0d6aad\" class=\"form-control sonsort\" placeholder=\"请输入2级栏目\"><button onclick=\"reduceSonSort(this)\">-</button></div>"
+            $("#SonSort").append(html);
+        }
+
+        //移除子栏目数量
+        function reduceSonSort(obj) {
+            $(obj).parent().remove();
+        }*/
+
+        //打开添加栏目模块
+        function openModal1(){
+            $('#myModal1').modal('show');
+        }
+
+        //删除栏目
+        function deleteSort() {
+            if(isEmpty(sortId) || sortId==0){
+                layer.msg('请选中要删除的栏目');
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定删除', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url : 'http://172.30.2.41:8080/sort/deleteBySortId',
+                        type : 'post',
+                        datatype : 'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data : {
+                            sortId : sortId
+                        },
+                        success : function(data) {
+                            if(data.success){
+                                layer.msg('删除成功', {icon: 1,time: 1000 ,end: function () {
+                                    }});
+                            }else {
+                                if(data.message == 1){
+                                    layer.alert('操作失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                            sortId=0;
+                            window.location.reload();
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+
+        }
+
+        //打开-添加子模块页面
+        function openModal2() {
+            $('#myModal2').modal('show');
+            showsortSelect();
+        }
+
+        //加载父模块下拉框
+        function showsortSelect() {
+            var html="<label class=\"control-label\">父栏目:</label><select class=\"form-control\" id=\"status\"><option value=0>请选择</option>"
+            $.each(sorts,function (i,v) {
+                if(v.parentId==0){
+                    html+="<option value="+v.sortId+">"+v.sortName+"</option>";
+                }
+            })
+            html+="</select>";
+            $("#parentSort").append(html);
+        }
+
+        //新增子栏目数量
+        function addSonSort2() {
+            var html = "<div class=\"input-group col-sm-2\">2级栏目<input type=\"text\" id=\"dateNumber\" style=\"color: #0d6aad\" class=\"form-control sonsort2\" placeholder=\"请输入2级栏目\"><button onclick=\"reduceSonSort(this)\">-</button></div>"
+            $("#SonSort2").append(html);
+        }
+
+        //添加子模块
+        function appendSonSort() {
+            var id = $("#status").val();
+            var sortNames = "";
+            $(".sonsort2").each(function () {
+                if(isEmpty($(this).val())){
+                    a=1
+                }else {
+                    sortNames+=$(this).val()+',';
+                }
+            })
+            sortNames= sortNames.substring(0, sortNames.length - 1);
+            //console.log(id+"---------"+sortNames);
+            if(id == 0){
+                layer.msg('请选择父栏目');
+                return false;
+            }
+            if(a == 1){
+                layer.msg('输入不能为空');
+                a=0;
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定添加', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url : 'http://172.30.2.41:8080/sort/addSortSon',
+                        type : 'post',
+                        datatype : 'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data : {
+                            sortId : id,
+                            sortNames : sortNames
+                        },
+                        success : function(data) {
+                            if(data.success){
+                                layer.msg('添加成功', {icon: 1,time: 1000 ,end: function () {
+                                        $('#myModal2').modal('hide');
+                                        window.location.reload();
+                                    }});
+                            }else {
+                                if(data.message == 1){
+                                    layer.alert('操作失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }else if(data.message == 2){
+                                    layer.alert('输入有误，请重新输入', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+
+
+        }
+
+
+        //判断字符是否为空的方法
+        function isEmpty(obj){
+            var reg = /^\s*$/
+            if(typeof obj == undefined || obj == null || reg.test(obj)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+    </script>
+</head>
+<body>
+<div class="panel-body" style="padding-bottom:0px;">
+    <div class="panel panel-default" style="padding-bottom:0px;" id="toolbar">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="openModal1()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 添加父栏目
+                            </button>
+                        </div>
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="openModal2()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 添加子栏目
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-danger" onclick="deleteSort()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 删除栏目
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div id="treebody" style="width: 100%;overflow:auto"></div>
+    </div>
+    <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+        <div class="modal-dialog"  style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel1">
+                        添加栏目
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group col-sm-3">
+                        1级栏目<input type="text" style="color: #0d6aad" class="form-control sonsort" placeholder="请输入1级栏目">
+                    </div>
+                    <br>
+                    <!--<div id="SonSort">
+                        <div class="input-group col-sm-3">
+                            2级栏目<input type="text" style="color: #0d6aad" class="form-control sonsort" placeholder="请输入2级栏目">
+                            <button onclick="addSonSort()">+</button>
+                        </div>
+                    </div>-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addsort()" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+        <div class="modal-dialog"  style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel2">
+                        添加子栏目
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group col-md-2" id="parentSort">
+                    </div>
+                    <br>
+                    <div id="SonSort2">
+                        <div class="input-group col-sm-3">
+                            2级栏目<input type="text" id="dateNumber" style="color: #0d6aad" class="form-control sonsort2" placeholder="请输入2级栏目">
+                            <button onclick="addSonSort2()">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="appendSonSort()" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

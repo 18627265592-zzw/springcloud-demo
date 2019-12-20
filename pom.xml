@@ -15,7 +15,7 @@
         <module>cms-model</module>
         <module>cms-login</module>
         <module>cms-utils</module>
-        <module>cms-gateway</module>
+        <module>cms-front</module>
     </modules>
 
 

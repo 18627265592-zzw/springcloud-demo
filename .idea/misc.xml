@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/cms-gateway/pom.xml" />
         <option value="$PROJECT_DIR$/cms-getway/pom.xml" />
         <option value="$PROJECT_DIR$/cms-news/pom.xml" />
+        <option value="$PROJECT_DIR$/cms-template/pom.xml" />
       </set>
     </option>
   </component>

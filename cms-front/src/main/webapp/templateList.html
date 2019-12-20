@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-table.js"></script>
+    <script src="./js/bootstrap-table-zh-CN.js"></script>
+    <script src="./layer/layer.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/bootstrap-table.css"/>
+    <script type="text/javascript">
+        var id = 0, val;
+        $(function () {
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+            $('#toolbar').parent().removeClass('pull-left');
+        });
+
+
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#ArbetTable').bootstrapTable({
+                    url: 'http://172.30.2.41:8080/template/findAllTemplate',         //请求后台的URL（*）
+                    method: 'get',                      //请求方式（*）
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber: 1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 20, 30, 50],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    //contentType: "application/x-www-form-urlencoded",
+                    strictSearch: true,
+                    showColumns: false,                  //是否显示所有的列
+                    //showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    //height: 700,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "no",                     //每一行的唯一标识，一般为主键列
+                    showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    ajaxOptions:{
+                            headers: {"accessToken":sessionStorage.getItem("accessToken")}
+                    },
+                    columns: [
+                        {
+                            align: 'center',
+                            title: '序号',
+                            formatter: function (value, row, index) {
+                                return index + 1;
+                            }
+                        }, {
+                            field: 'templateId',
+                            align: 'center',
+                            title: '模板ID'
+                        }, {
+                            field: 'templateName',
+                            align: 'center',
+                            title: '模板名称'
+                        }, {
+                            field: 'statestr',
+                            align: 'center',
+                            title: '模板状态',
+                        }, {
+                            field: 'createUserId',
+                            align: 'center',
+                            title: '创建人ID',
+                        }, {
+                            field: 'createTime',
+                            align: 'center',
+                            title: '创建时间',
+                            sortable: true,
+                    formatter: function (value,row,index) {
+                    return changeDateFormat(value)
+                }
+                        },
+                    ],
+                    onClickRow: function (row, $element) {
+                        //单击行改变背景色
+                        $('.info').removeClass('info');//移除class
+                        $($element).addClass('info');//添加class
+                        id = row.templateId;
+                        val = row;
+                    },
+                });
+
+            };
+
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                templateName = $("#templateName").val(),
+                templateId = $("#templateId").val(),
+                state = $("#state").val();
+                var temp = {
+                    state:state,
+                    templateId:templateId,
+                    templateName:templateName,
+                    page: ((params.offset)/(params.limit))+1,  //页码
+                    rows: params.limit   //行数
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+
+        function changeDateFormat(cellvel) {
+            var date = new Date(+new Date(cellvel)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'');
+            return date;
+        }
+
+        //判断字符是否为空的方法
+        function isEmpty(obj){
+            var reg = /^\s*$/
+            if(typeof obj == undefined || obj == null || reg.test(obj)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        //查询
+        function query() {
+            $('#ArbetTable').bootstrapTable('refresh');
+        }
+
+        //清空
+        function empty() {
+           $("#templateName").val("");
+           $("#templateId").val("");
+           $("#state").val(0)
+        }
+
+        //添加模板模态框打开
+        function modal1show() {
+            $('#myModal1').modal('show');
+        }
+
+        //添加模板
+        function addtemplate() {
+            var file1 = $("#fileName1").val();//用户文件内容(文件)
+            var templateName = $("#templateName1").val();
+            // 判断文件是否为空
+            if (isEmpty(file1)) {
+                layer.msg('请选择上传的目标文件!');
+                return false;
+            }
+            if(isEmpty(templateName)){
+                layer.msg('模板名称不能为空');
+                return false;
+            }
+            //判断文件大小
+            var size1 = $("#fileName1")[0].files[0].size;
+            if (size1>5242880) {
+                layer.msg('上传文件不能大于5M');
+                return false;
+            }
+            var formData = new FormData();
+            formData.append("file",$("#fileName1")[0].files[0]);
+            formData.append("templateName",templateName);
+            var locked = false;
+            layer.confirm('是否确定添加', {
+                btn: ['确定', '取消']
+            }, function () {
+                layer.closeAll();
+                    if(!locked){
+                        locked = true;
+                        $.ajax({
+                            type : "post",
+                            url : "http://172.30.2.41:8080/template/addTemplate",
+                            data : formData,
+                            processData : false,
+                            contentType : false,
+                            headers: {
+                                "accessToken" : sessionStorage.getItem("accessToken"),
+                            },
+                            success : function(data){
+                                locked=false;
+                                if (data.success) {
+                                    layer.msg('添加成功', {icon: 1,time: 1000 ,end: function () {
+                                            $('#myModal1').modal('hide');
+                                            window.location.reload();
+                                        }});
+                                }else{
+                                    if(data.message == 1){
+                                        layer.alert('上传失败', {
+                                            icon: 5,
+                                            title: "提示"
+                                        });
+                                    }else if(data.message == 2){
+                                        layer.alert('操作失败', {
+                                            icon: 5,
+                                            title: "提示"
+                                        });
+                                    }else if(data.message == 3){
+                                        layer.alert('模板名称重复，请重新输入', {
+                                            icon: 5,
+                                            title: "提示"
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }
+                },function () {
+            });
+        }
+
+        //删除模板
+        function deletatemplate() {
+            if(id == 0){
+                layer.msg('请选择您要删除的模板');
+                return false;
+            }
+            if(val.state == 2){
+                layer.msg('此模板已删除');
+                return false;
+            }
+                var locked = false;
+                layer.confirm('是否确定删除', {
+                    btn: ['确定','取消'] //按钮
+                }, function(){
+                    layer.closeAll();
+                    if(!locked) {
+                        locked = true;
+                        $.ajax({
+                            url : 'http://172.30.2.41:8080/template/deleteTemplate',
+                            type : 'post',
+                            datatype : 'json',
+                            headers: {
+                                "accessToken" : sessionStorage.getItem("accessToken"),
+                            },
+                            data : {
+                                templateId : id
+                            },
+                            success : function(data) {
+                                if(data.success){
+                                    layer.msg('删除成功', {icon: 1,time: 1000 ,end: function () {
+                                        }});
+                                }else {
+                                    if(data.message == 1){
+                                        layer.alert('删除失败，请联系技术人员', {
+                                            icon: 5,
+                                            title: "提示"
+                                        });
+                                    }
+                                }
+                                id=0;
+                                $('#ArbetTable').bootstrapTable('refresh');
+                            }
+                        })
+                    }
+                }, function(){
+
+                });
+        }
+
+        //打开修改模板信息模态框
+        function modal2show() {
+            if(id == 0){
+                layer.msg('请选择您要修改的模板');
+                return false;
+            }
+            $('#myModal2').modal('show');
+            $("#templateId2").html(val.templateId);
+            $("#templateName2").val(val.templateName);
+            gettemplate(val.templateId);
+        }
+
+        //修改模板信息
+        function updatetemplateName() {
+            var templateName = $("#templateName2").val();
+            var templateContent = $("#templateContent2").val();
+            if(isEmpty(templateName)){
+                layer.msg('模板名称不能为空');
+                return false;
+            }if(isEmpty(templateContent)){
+                layer.msg('模板内容不能为空');
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定修改', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url : 'http://172.30.2.41:8080/template/updateTemplate',
+                        type : 'post',
+                        datatype : 'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data : {
+                            templateId : id,
+                            templateName : templateName,
+                            templateContent : templateContent
+                        },
+                        success : function(data) {
+                            if(data.success){
+                                $('#myModal2').modal('hide');
+                                layer.msg('修改成功', {icon: 1,time: 1000 ,end: function () {
+                                    }});
+                            }else {
+                                if(data.message == 1){
+                                    layer.alert('修改失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }else if(data.message == 2){
+                                    layer.alert('修改内容失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                            id=0;
+                            $('#ArbetTable').bootstrapTable('refresh');
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+        }
+
+        //获取模板内容
+        function gettemplate(obj) {
+            $.ajax({
+                url: 'http://172.30.2.41:8080/template/findTemplateById',
+                type: 'get',
+                datatype: 'html',
+                headers: {
+                    "accessToken" : sessionStorage.getItem("accessToken"),
+                },
+                data: {
+                    templateId : obj
+                },
+                success: function (data) {
+                    $("#templateContent2").val(data)
+                }
+            })
+        }
+
+    </script>
+</head>
+<body>
+
+<div class="panel-body" style="padding-bottom:0px;">
+    <div class="panel panel-default" style="padding-bottom:0px;" id="toolbar">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2 ">
+                    <label class="control-label ">模板名称:</label>
+                    <div style="padding-left: 0px">
+                        <input type="text" class="form-control" id="templateName">
+                    </div>
+                </div>
+                <div class="col-md-2 ">
+                    <label class="control-label ">模板ID:</label>
+                    <div style="padding-left: 0px">
+                        <input type="text" class="form-control" id="templateId">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <label class="control-label">类型:</label>
+                    <select class="form-control" id="state">
+                        <option value=0>请选择</option>
+                        <option value=1>存在</option>
+                        <option value=2>已删除</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="control-label">&nbsp;</label>
+                    <div style="padding-left: 0px">
+                        <button type="button" onclick="query()" class="btn btn-primary">查询</button>&nbsp;&nbsp;
+                        <button type="button" onclick="empty()" class="btn btn-primary">清空</button>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="modal1show()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 添加模板
+                            </button>
+                        </div>
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="modal2show()">
+                                <i class="fa fa-download"></i> 修改模板信息
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-danger" onclick="deletatemplate()">
+                                <i class="fa fa-download"></i> 删除模板
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-7">
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="ArbetTable"></table>
+    <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+        <div class="modal-dialog"  style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel1">
+                        添加模板
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group col-sm-3">
+                        模板名称<input type="text" id="templateName1" style="color: #0d6aad" class="form-control" placeholder="请输入模板名称">
+                    </div>
+                    <br>
+                    模板文件
+                        <input type="file" name="fileName1" id="fileName1"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="addtemplate()" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+        <div class="modal-dialog" style="width:1000px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel2">
+                        修改模板信息
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group col-sm-2">
+                        模板ID
+                        <br><span id="templateId2"></span>
+                    </div>
+                    <br>
+                    <div class="input-group col-sm-3">
+                        模板名称<input type="text" id="templateName2" style="color: #0d6aad" class="form-control">
+                    </div>
+                    <br>
+                    <div class="input-group col-sm-10">
+                        模板内容<textarea id="templateContent2" style="color: #0d6aad" class="form-control" rows="20"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="updatetemplateName()" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

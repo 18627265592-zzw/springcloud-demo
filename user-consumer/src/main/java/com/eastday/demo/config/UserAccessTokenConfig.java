@@ -15,14 +15,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class UserAccessTokenConfig implements WebMvcConfigurer {
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authenticationInterceptor())
-                .addPathPatterns("/**");    // 拦截所有请求，通过判断是否有 @LoginRequired 注解 决定是否需要登录
+        registry.addInterceptor(authenticationInterceptor()).addPathPatterns("/**");    // 拦截所有请求，通过判断是否有 @UserLoginToken 注解 决定是否需要登录
+        registry.addInterceptor(logInterceptorConfig()).addPathPatterns("/**");
     }
+
     @Bean
     public InterceptorConfig authenticationInterceptor() {
         return new InterceptorConfig();// 自己写的拦截器
+    }
+
+    @Bean
+    public LogInterceptorConfig logInterceptorConfig() {
+        return new LogInterceptorConfig();// 自己写的拦截器
     }
 
 

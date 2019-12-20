@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>后端管理系统</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="css/AdminLTE.min.css">
+  <link rel="stylesheet" href="css/skin-blue.min.css">
+  <!-- jQuery 3 -->
+  <script src="js/jquery-3.3.1.js"></script>
+  <!-- Bootstrap 3.3.7 -->
+  <script src="js/bootstrap.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="js/adminlte.min.js"></script>
+  <!-- Google Font -->
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <style type="text/css">
+    .breadcrumb {
+      padding: 0px 0px;
+      margin-bottom: 5px;
+      margin-right: 15px;
+      list-style: none;
+      background-color: #ecf0f5;
+      border-radius: 4px;
+    }
+  </style>
+  <script type="text/javascript">
+    var userId = sessionStorage.getItem("userId");
+  function lodingHomePage(page_url,text,obj){
+      var h=Number($('#home_body').height())*0.96;
+      //var textsp=text.split(">");
+      var htmltext=" <ol class=\"breadcrumb\" ><li style='font-size: 13px'> "+text+"</li></ol>";
+      $("#home_body_top").html(htmltext);
+      $("#home_body_page").css('height',h+"px");
+      $("#home_body_page").html("<iframe src=\""+page_url+"\" width=\"100%\" height=\"100%\" frameborder=\"0\"></iframe>");
+     var menu= $(".treeview-menu li a");
+      $.each(menu,function(i,v){
+         $(v).css("color","#8aa4af");//#8aa4af
+      });
+      if(obj!=""){
+          $(obj).css("color","#77DFFF");
+      }
+  }
+
+  //退出登录
+  function logout(){
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+  }
+
+  //判断字符是否为空的方法
+  function isEmpty(obj){
+      var reg = /^\s*$/
+      if(typeof obj == undefined || obj == null || reg.test(obj)){
+          return true;
+      }else{
+          return false;
+      }
+  }
+
+  function menuHide(){
+      $("#new_management").hide();
+      $("#new_create").hide();
+      $("#new_review").hide();
+      $("#sort_manage").hide();
+      $("#template_manage").hide();
+      $("#news_list").hide();
+      $("#user_management").hide();
+      $("#user_infomation").hide();
+      $("#user_permission").hide();
+      $("#user_logger").hide();
+  }
+
+  function menuShow(){
+      $.ajax({
+          url: 'http://172.30.2.41:8080/menu',
+          type: 'post',
+          datatype: 'json',
+          headers: {
+              "accessToken" : sessionStorage.getItem("accessToken"),
+          },
+          data: {
+              userId : sessionStorage.getItem("userId")
+          },
+          success: function (data) {
+              $.each(data,function (ii,vv) {
+                  $("#"+vv.menuCode+"").show();
+                  $.each(vv.childMenus,function (i,v) {
+                      $("#"+v.menuCode+"").show();
+                  })
+              })
+          }
+      })
+  }
+
+  $(function () {
+      if(isEmpty(sessionStorage.getItem("userId"))){
+          window.location.href = 'login.html';
+      }
+      $("#userName").append(":"+userId);
+      //console.log(sessionStorage.getItem("accessToken"))
+      menuHide();
+      menuShow();
+
+  })
+  </script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <!-- Main Header -->
+  <header class="main-header">
+
+    <!-- Logo -->
+    <a href="#" class="logo">
+      <span class="logo-lg"><b>CMS</b></span>
+    </a>
+    <!-- 头部导航开始 -->
+    <nav class="navbar navbar-static-top" role="navigation">
+      <!-- 左侧菜单栏按钮-->
+      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+      <!-- 右侧用户信息栏 -->
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <!-- 用户账户菜单开始 -->
+         <!-- <li class="dropdown user user-menu">
+            <a href="javascript:void(0);" onclick="lodingHomePage('updatePwd.html','首页 &gt; 修改密码',this)"><b>修改密码</b></a>
+          </li>-->
+          <li class="dropdown user user-menu">
+            <a href="#"><b onclick="logout()">退出</b></a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <!-- 左侧菜单栏开始 -->
+  <aside class="main-sidebar">
+    <section class="sidebar">
+      <!-- 用户信息 -->
+      <div class="user-panel">
+        <div class="pull-left image">
+          <!-- 头像 -->
+          <img src="img/user2.jpg" class="img-circle" alt="User Image">
+        </div>
+        <div class="pull-left info">
+          <!-- 用户名 -->
+          <p id="userName">管理员</p>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu" data-widget="tree">
+        <li class="header">菜单导航</li>
+        <!-- Optionally, you can add icons to the links -->      
+        <li class="treeview" id="new_management">
+          <a href="#"><i class="fa fa-user"></i><span>新闻管理</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+          <ul class="treeview-menu">      
+            <li id="new_create"><a href="javascript:void(0);" onclick="lodingHomePage('addnews.html','新闻管理 &gt; 创建新闻',this)"><i class="fa fa-circle-o"></i>创建新闻</a></li>
+            <li id="new_review"><a href="javascript:void(0);" onclick="lodingHomePage('reviewnews.html','新闻管理&gt;审核新闻',this)"><i class="fa fa-circle-o"></i>审核新闻</a></li>
+            <li id="sort_manage"><a href="javascript:void(0);" onclick="lodingHomePage('sortList.html','新闻管理 &gt; 栏目管理',this)"><i class="fa fa-circle-o"></i>栏目管理</a></li>
+            <li id="template_manage"><a href="javascript:void(0);" onclick="lodingHomePage('templateList.html','新闻管理&gt;模板管理',this)"><i class="fa fa-circle-o"></i>模板管理</a></li>
+            <li id="news_manage"><a href="javascript:void(0);" onclick="lodingHomePage('newsList.html','新闻管理&gt;新闻列表',this)"><i class="fa fa-circle-o"></i>新闻列表</a></li>
+          </ul>
+        </li>
+        <li class="treeview" id="user_management">
+          <a href="#"><i class="fa fa-user"></i><span>用户管理</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+          </a>
+          <ul class="treeview-menu">
+            <li id="user_infomation"><a href="javascript:void(0);" onclick="lodingHomePage('readTemplate.html','用户管理 &gt; 个人中心',this)"><i class="fa fa-circle-o"></i>个人中心</a></li>
+            <li id="user_permission"><a href="javascript:void(0);" onclick="lodingHomePage('roleList.html','用户管理 &gt; 权限管理',this)"><i class="fa fa-circle-o"></i>权限管理</a></li>
+            <li id="user_logger"><a href="javascript:void(0);" onclick="lodingHomePage('loggerList.html','用户管理&gt;日志列表',this)"><i class="fa fa-circle-o"></i>日志列表</a></li>
+          </ul>
+        </li>
+      </ul>
+      <!-- /.sidebar-menu -->
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+  <!-- 菜单结束 -->
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" id="home_body">
+    <!-- 内容标头 -->
+    <div style="float: left;margin-left: 1%;margin-top: 0.5%;font-size: 16px;font-style: normal;color: #00a7d0"><span id="home_body_top"></span></div>
+    <!-- 内容开始 -->
+    <section class="content container-fluid" id="home_body_page">
+    </section>
+    <!-- 内容结束 -->
+  </div>
+  <div class="control-sidebar-bg"></div>
+</div>
+</body>
+</html>

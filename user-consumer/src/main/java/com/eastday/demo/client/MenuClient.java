@@ -18,7 +18,10 @@ public interface MenuClient {
     List<Menu> findMenuByUserId(@RequestParam("userId") String userId);
 
     @GetMapping(value = "/menu/roleAndMenu")
-    Map<Object,Object> findRoleAndMenu();
+    Map<String,Object> findRoleAndMenu(@RequestParam("page") Integer page,@RequestParam("rows") Integer rows);
+
+    @PostMapping(value = "/menu/all")
+    String findAllMenu();
 
     @GetMapping(value = "/menu/role")
     RetDto addRole(@RequestParam("roleName") String roleName);
@@ -30,7 +33,7 @@ public interface MenuClient {
     RetDto updateMenuByRoleId(@RequestParam("roleId") Integer roleId, @RequestParam("menuIds") String menuIds);
 
     @PostMapping(value = "/menu/userAndRole")
-    RetDto updateUserAndRole(@RequestParam("userId") Integer userId, @RequestParam("roleId") Integer roleId);
+    RetDto updateUserAndRole(@RequestParam("userId") String userId, @RequestParam("roleId") Integer roleId);
 
     @PostMapping(value = "/menu/selectMenuByUserId")
     List<Menu> selectMenuByUserId(@RequestParam("userId") String userId);

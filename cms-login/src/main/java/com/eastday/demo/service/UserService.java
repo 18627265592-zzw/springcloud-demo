@@ -6,9 +6,9 @@ import com.eastday.demo.user.Mobile;
 import com.eastday.demo.user.RetDto;
 import com.eastday.demo.user.User;
 import com.eastday.demo.utils.DateUtils;
-import com.eastday.demo.utils.DesUtil;
+import com.eastday.demo.utils.DesUtils;
 import com.eastday.demo.utils.JwtUtils;
-import com.eastday.demo.utils.StringUtil;
+import com.eastday.demo.utils.CmsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class UserService {
             return new RetDto(false,2,null);// 2:验证码有误
         }else{
             int MM =(int)DateUtils.getDistanceMinTimes(new Date(),mobile.getMobileSendTime()); // 共计分钟数*/
-            System.out.println("间隔时间------"+MM+"分钟");
+            log.debug("间隔时间------"+MM+"分钟");
             if (MM > JwtUtils.EFFECTIVE_TIME) {// 时间间隔大于五分钟 验证码失效
                 return new RetDto(false,3,null); //3:验证码失效
             }else if(mobile.getMobileUsable()==1){//验证码已使用
@@ -76,25 +76,29 @@ public class UserService {
      */
     @Transactional(propagation = Propagation.REQUIRED,readOnly = false)
     public RetDto sendCode(String phone) {
-        if(!checkPhone(phone)){
-            return new RetDto(false,1,null);
-        }else{
-            //发送验证码
-            String random = StringUtil.NumberCode(6);
-            log.debug("验证码————"+random);
-            //查询数据库手机号是否存在
-            User user=findUserByPhone(phone);
-            if(user!=null){
-                updateMobileInfo(phone,random);
-                log.debug("发送成功");
-                return new RetDto(true,0,null);
+        try {
+            if(!checkPhone(phone)){
+                return new RetDto(false,1,null);//手机号有误
             }else{
-                log.debug("发送成功");
-                String userId = addUser(phone);
-                addMobile(userId,phone,random);
-                return new RetDto(true,0,null);
+                //发送验证码
+                String random = CmsUtils.NumberCode(6);
+                log.debug("短信验证码————"+random);
+                //查询数据库手机号是否存在
+                User user=findUserByPhone(phone);
+                if(user!=null){
+                    updateMobileInfo(phone,random);
+                }else{
+                    String userId = addUser(phone);
+                    addMobile(userId,phone,random);
+                }
+                Map map= new HashMap();
+                map.put("code",random);
+                return new RetDto(true,0,map);
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+        return new RetDto(false,2,null);//操作失败，联系技术人员
     }
 
     /**
@@ -119,7 +123,7 @@ public class UserService {
     }
 
     public boolean checkPhone(String phone){
-        if(StringUtil.isMobile(phone)){
+        if(CmsUtils.isMobile(phone)){
             return true;
         }else{
             return false;
@@ -128,7 +132,7 @@ public class UserService {
 
     public User findUserByPhone(String phone){
         User user=new User();
-        user.setUserPhone(DesUtil.encrypt(phone));
+        user.setUserPhone(DesUtils.encrypt(phone));
         return userDao.selectOne(user);
     }
 
@@ -144,8 +148,8 @@ public class UserService {
 
     public String addUser(String phone){
         User user=new User();
-        user.setUserId(StringUtil.generateShortUuid());
-        user.setUserPhone(DesUtil.encrypt(phone));
+        user.setUserId(CmsUtils.generateShortUuid());
+        user.setUserPhone(DesUtils.encrypt(phone));
         user.setUserCreatTime(new Date());
         userDao.insertSelective(user);
         return user.getUserId();
@@ -170,7 +174,7 @@ public class UserService {
 
     public User refreshLastLoginTime(String phone){
         User user = new User();
-        user.setUserPhone(DesUtil.encrypt(phone));
+        user.setUserPhone(DesUtils.encrypt(phone));
         User user2 = userDao.selectOne(user);
         String accessToken=JwtUtils.getToken(user2);
         user2.setAccessToken(accessToken);

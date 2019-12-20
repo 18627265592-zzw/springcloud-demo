@@ -8,13 +8,13 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtil {
+public class CmsUtils {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper = new ObjectMapper();
     private JSONArray json = new JSONArray();
 
     /**
-     * 生成uuid
+     * 生成8位数uuid
      * @return
      */
     public static String[] chars = new String[] { "a", "b", "c", "d", "e", "f",
@@ -45,7 +45,7 @@ public class StringUtil {
      * @param o
      * @return
      */
-    public String ObjectToString(Object o) {
+    public static String ObjectToString(Object o) {
         String outstr = null;
         try {
             outstr = objectMapper.writeValueAsString(o);

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-table.js"></script>
+    <script src="./js/bootstrap-table-zh-CN.js"></script>
+    <script src="./layer/layer.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/bootstrap-table.css"/>
+    <!-- 导入树文件 -->
+    <link rel="stylesheet" href="./css/tree.css">
+    <script src="./js/treescroll.min2.js"></script>
+    <script type="text/javascript">
+        var id = 0, val ,permission;
+        $(function () {
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+            $('#toolbar').parent().removeClass('pull-left');
+            findAllMenu();
+        });
+
+
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#ArbetTable').bootstrapTable({
+                    url: 'http://172.30.2.41:8080/menu/roleAndMenu',         //请求后台的URL（*）
+                    method: 'get',                      //请求方式（*）
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber: 1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 20, 30, 50],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    //contentType: "application/x-www-form-urlencoded",
+                    strictSearch: true,
+                    showColumns: false,                  //是否显示所有的列
+                    //showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    //height: 700,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "no",                     //每一行的唯一标识，一般为主键列
+                    showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    ajaxOptions:{
+                            headers: {"accessToken":sessionStorage.getItem("accessToken")}
+                    },
+                    columns: [
+                        {
+                            align: 'center',
+                            title: '序号',
+                            formatter: function (value, row, index) {
+                                return index + 1;
+                            }
+                        }, {
+                            field: 'roleName',
+                            align: 'center',
+                            title: '角色名称'
+                        }, {
+                            field: 'createTime',
+                            align: 'center',
+                            title: '创建时间',
+                            sortable: true,
+                    formatter: function (value,row,index) {
+                    return changeDateFormat(value)
+                    }
+                        }, {
+                            field: 'menus',
+                            align: 'center',
+                            title: '拥有的权限',
+                        },
+                    ],
+                    onClickRow: function (row, $element) {
+                        //单击行改变背景色
+                        $('.info').removeClass('info');//移除class
+                        $($element).addClass('info');//添加class
+                        id = row.roleId;
+                        val = row;
+                    },
+                });
+
+            };
+
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                var temp = {
+                    page: ((params.offset)/(params.limit))+1,  //页码
+                    rows: params.limit,   //行数
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+        //获取全部权限列表
+        function findAllMenu() {
+            $.ajax({
+                url: 'http://172.30.2.41:8080/menu/all',
+                type: 'post',
+                datatype: 'json',
+                headers: {
+                    "accessToken" : sessionStorage.getItem("accessToken"),
+                },
+                data: {
+                },
+                success: function (data) {
+                    permission=$.parseJSON(data);
+                }
+            })
+        }
+
+        //打开模板框
+        function openModal2() {
+            $('#myModal2').modal('show');
+        }
+
+        //添加角色
+        function addRole() {
+            var roleName = $("#roleName").val();
+            if(isEmpty(roleName)){
+                layer.msg('角色名称不能为空', {icon: 2,time: 2000 });
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定添加', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url:'http://172.30.2.41:8080/menu/role',
+                        type:'get',
+                        datatype:'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data:{
+                            roleName:roleName
+                        },
+                        success:function(data){
+                            if(data.success){
+                                layer.msg('添加权限成功！', {icon: 1,time: 2000 });
+                                $('#myModal2').modal('hide');
+                                $('#ArbetTable').bootstrapTable('refresh');
+                            }else{
+                                if(data.message == 1){
+                                    layer.alert('操作失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }else if(data.message == 2){
+                                    layer.alert('角色名已存在，请重新输入', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+
+        }
+
+        //添加权限
+        function addPermission() {
+            if (id == 0 || id == null) {
+                layer.msg('请选择要分配权限的角色！', {icon: 2,time: 2000 });
+            }else {
+                //打开树形权限列表
+                $('#myModal1').modal('show');
+                var html="<div class=\"tree\" style='width: auto;'><ul>";
+                $.each(permission,function(i,v){
+                    if(v.parentId==0){
+                        html+="<li><div class=\"close_menu\"><span class='spanopen' onclick='iconclick("+v.menuId+","+v.parentId+",\""+v.menuName+"\",this)'></span><label  style='margin-left: 5px;margin-right: 5px;'><input id=\"cb_0_"+v.menuId+"\" value=\""+v.menuId+"\" name=\"cb_name_0\" onclick='changecbstate("+v.menuId+",this)' type=\"checkbox\"></label><a onclick='' title=\""+v.menuName+"\">"+v.menuName+"</a></div><ul></ul></li>";
+                    }
+                })
+                html+="</ul></div>";
+                $("#treebody").html(html)
+                $(".spanopen").each(function(i,v){
+                    $(v).trigger('click');
+                })
+                $(".spanopen").hide();
+                $.ajax({
+                    url:'http://172.30.2.41:8080/menu/role',
+                    type:'post',
+                    datatype:'json',
+                    headers: {
+                        "accessToken" : sessionStorage.getItem("accessToken"),
+                    },
+                    data:{
+                        roleId:id
+                    },
+                    success:function(data){
+                        $.each(data,function(i,v){
+                            //cb_1_2
+                            var id="cb_"+v.parentId+"_"+v.menuId;
+                            $("input[id='"+id+"']").prop("checked", true);
+                        })
+                    }
+                })
+            }
+        }
+
+        //菜单图标点击
+        function iconclick(menuId,parentId,menuName,obj){
+            var element=$(obj).parent().next(),html="";
+            $.each(permission,function (i,v) {
+                if(v.parentId==menuId){
+                    html+="<li><div class=\"close_menu\" style='margin-left: 15px'><label  style='margin-left: 5px;margin-right: 5px;'><input id=\"cb_"+menuId+"_"+v.menuId+"\" value=\""+v.menuId+"\" name=\"cb_name_"+menuId+"\" type=\"checkbox\" class=\"flat-red\"></label><a onclick='' title=\""+v.menuName+"\">"+v.menuName+"</a></div><ul></ul></li>";
+                }
+            })
+            $(element).html(html);
+        }
+
+        //改变多选框状态
+        function changecbstate(menuId,obj){
+            var isck=$("input[id='"+$(obj).attr('id')+"']").is(':checked')
+            var name="cb_name_"+menuId;
+            if(isck){
+                $("input[name='"+name+"']").each(function(i,v){
+                    $(this).prop("checked", true);
+                })
+            }else{
+                $("input[name='"+name+"']").each(function(i,v){
+                    $(this).prop("checked", false);
+                })
+            }
+        }
+
+        //多选框取值
+        function getckboxValue(obj){
+            var arrayall="";
+            $("input[name='cb_name_0']").each(function(i,v){
+                if ($(v).is(':checked')){
+                    var fval=$(v).val();
+                    arrayall+=fval+',';
+                    $("input[name='cb_name_"+fval+"']").each(function(ii,vv){
+                        if ($(vv).is(':checked')){
+                            var fval2=$(vv).val();
+                            arrayall+=fval2+",";
+                        }
+                    })
+                }else{
+                    var fval=$(v).val();
+                    var arr=$("input[name='cb_name_"+fval+"']:checked");
+                    arr.each(function(ii,vv){
+                        var fval2=$(vv).val();
+                        arrayall+=fval2+",";
+                        if(arr.length-1==ii){
+                            arrayall+=fval+',';
+                        }
+                    })
+
+                }
+            })
+            var locked = false;
+            layer.confirm('是否确定调整', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url:'http://172.30.2.41:8080/menu/roleAndMenu',
+                        type:'post',
+                        datatype:'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data:{
+                            roleId:id,
+                            menuIds:arrayall.substring(0,arrayall.length-1)
+                        },
+                        success:function(data){
+                            if(data.success){
+                                layer.msg('添加权限成功！', {icon: 1,time: 2000 });
+                            }else{
+                                layer.msg('添加权限失败，请重试！', {icon: 2,time: 2000 });
+                            }
+                            $('#myModal1').modal('hide');
+                            $('#ArbetTable').bootstrapTable('refresh');
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+
+        }
+
+        //处理时间格式
+        function changeDateFormat(cellvel) {
+            var date = new Date(+new Date(cellvel)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'')
+            return date;
+        }
+
+        //判断字符是否为空的方法
+        function isEmpty(obj){
+            var reg = /^\s*$/
+            if(typeof obj == undefined || obj == null || reg.test(obj)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+
+    </script>
+</head>
+<body>
+
+<div class="panel-body" style="padding-bottom:0px;">
+    <div class="panel panel-default" style="padding-bottom:0px;" id="toolbar">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="openModal2()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 新增角色
+                            </button>
+                        </div>
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="addPermission()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 权限调整
+                            </button>
+                        </div>
+                        <!--<div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="openModal()" style="margin-left: 15px">
+                                <i class="fa fa-download"></i> 用户角色调整
+                            </button>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel2">
+                        添加权限
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div id="treebody" style="width: 100%;height: 400px;overflow:auto"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="getckboxValue(this)" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        添加角色
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group col-sm-3">
+                        角色名称<input type="text" id="roleName" style="color: #0d6aad" class="form-control" placeholder="请输入角色名称">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="addRole()" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="ArbetTable"></table>
+</div>
+
+</body>
+</html>

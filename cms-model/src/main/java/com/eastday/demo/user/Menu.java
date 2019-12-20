@@ -15,10 +15,10 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer menuId;//主键
 
-    @Column(name = "permission_name")
+    @Column(name = "menu_name")
     private String menuName;//权限名称
 
-    @Column(name = "permission_code")
+    @Column(name = "menu_code")
     private String menuCode;//权限代码
 
     @Column(name = "parent_id")

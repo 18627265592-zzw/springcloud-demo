@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="cms-front" />
         <module name="cms-login" />
         <module name="cms-model" />
         <module name="cms-utils" />
@@ -18,6 +19,7 @@
       <module name="cms-gateway" target="1.8" />
       <module name="cms-getway" target="1.8" />
       <module name="cms-news" target="1.8" />
+      <module name="cms-template" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

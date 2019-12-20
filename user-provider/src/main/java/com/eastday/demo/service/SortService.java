@@ -1,8 +1,9 @@
 package com.eastday.demo.service;
 
 import com.eastday.demo.dao.ISortDao;
-import com.eastday.demo.user.Sort;
 import com.eastday.demo.user.RetDto;
+import com.eastday.demo.user.Sort;
+import com.eastday.demo.utils.CmsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,9 @@ public class SortService {
                     li.setCreateTime(new Date());
                     li.setParentId(sortId);
                 }
-                sortDao.insertList(list);
+                if(list.size()>0){
+                    sortDao.insertList(list);
+                }
             }
         }catch (Exception e){
             retDto = new RetDto(false, 1, null);// 1：操作失败
@@ -50,9 +53,9 @@ public class SortService {
         return sortDao.selectOne(sort);
     }
 
-    public List<Sort> getAllSort(){
+    public String getAllSort(){
         List<Sort> allSorts = sortDao.selectAll();
-        List<Sort> sorts = new ArrayList<>();
+        /*List<Sort> sorts = new ArrayList<>();
         for(Sort sort:allSorts){
             if(sort.getParentId()==0 && sort.getLever()==1){  //1级栏目
                 sorts.add(sort);
@@ -60,8 +63,8 @@ public class SortService {
         }
         for(Sort sort:sorts){
             sort.setChildSorts(getChildSort(sort.getSortId(),allSorts));
-        }
-        return sorts;
+        }*/
+        return CmsUtils.ObjectToString(allSorts);
     }
 
     public List<Sort> getChildSort(int sortId,List<Sort> allSorts){
@@ -78,43 +81,39 @@ public class SortService {
     }
 
     public RetDto deleteBySortId(Integer sortId){
-        RetDto retDto=new RetDto(true, 0, null);// 0：成功
         try {
             Sort sort = sortDao.selectByPrimaryKey(sortId);
-            if(sort.getLever() == 1 && sort.getParentId() == 0){  //父级
-                sortDao.deleteByPrimaryKey(sortId);
-                Sort sort1 = new Sort();
-                sort1.setParentId(sortId);
-                sortDao.delete(sort1);
-            }else {  //子级
-                sortDao.deleteByPrimaryKey(sortId);
+            if(sort != null){
+                if(sort.getLever() == 1 && sort.getParentId() == 0){  //父级
+                    sortDao.deleteByPrimaryKey(sortId);
+                    Sort sort1 = new Sort();
+                    sort1.setParentId(sortId);
+                    sortDao.delete(sort1);
+                }else {  //子级
+                    sortDao.deleteByPrimaryKey(sortId);
+                }
+                return new RetDto(true, 0, null);// 0：成功
             }
         }catch (Exception e){
-            retDto=new RetDto(false, 1, null);// 1：操作失败
             e.printStackTrace();
         }
-        return retDto;
+        return new RetDto(false, 1, null);// 1：操作失败;
     }
 
 
-    public RetDto addSortSon(Integer sortId,String sortName){
-        RetDto retDto=new RetDto(true, 0, null);// 0：成功
+    public RetDto addSortSon(List<Sort> list){
         try {
-            Sort sort = new Sort();
-            sort.setParentId(sortId);
-            sort.setSortName(sortName);
-            sort.setLever(2);
-            Sort sort1 = sortDao.selectOne(sort);
-            if(sort1 == null){
-                sort.setCreateTime(new Date());
-                sortDao.insert(sort);
+            if(list.size()==0){
+                return new RetDto(false, 2, null);// 2：输入有误
             }else{
-                retDto=new RetDto(false, 2, null);// 2：子栏目重名
+                int i = sortDao.insertList(list);
+                if(i == list.size()){
+                    return new RetDto(true, 0, null);// 0：成功
+                }
             }
         }catch (Exception e){
-            retDto=new RetDto(false, 1, null);// 1：操作失败
             e.printStackTrace();
         }
-        return retDto;
+        return new RetDto(false, 1, null);// 1：操作失败;
     }
 }

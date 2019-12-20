@@ -28,6 +28,23 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
+        <!--feign转发get请求参数问题-->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-httpclient</artifactId>
+            <version>9.5.1</version>
+        </dependency>
+        <!--feign上传-->
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign.form</groupId>
+            <artifactId>feign-form-spring</artifactId>
+            <version>3.2.2</version>
+        </dependency>
         <dependency>
             <groupId>com.eastday</groupId>
             <artifactId>cms-model</artifactId>

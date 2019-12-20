@@ -5,6 +5,7 @@ import com.eastday.demo.user.Menu;
 import com.eastday.demo.user.RetDto;
 import com.eastday.demo.user.RoleAndMenu;
 import com.eastday.demo.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/menu")
 @EnableAutoConfiguration
@@ -32,7 +34,7 @@ public class MenuController {
     @PostMapping(value = "")
     public List<Menu> findMenuByUserId(String userId){
         //判断参数id与token中userId是否一致
-        System.out.println(userId+"----------"+JwtUtils.getTokenUserId());
+        log.debug(userId+"----------"+JwtUtils.getTokenUserId());
         if(JwtUtils.getTokenUserId().equals(userId)){
             return menuService.findMenuByUserId(userId);
         }else{
@@ -46,8 +48,8 @@ public class MenuController {
      * @return 角色对象:权限名称集合
      */
     @GetMapping(value = "/roleAndMenu")
-    public Map<Object,Object> findRoleAndMenu(){
-        return menuService.findRoleAndMenu();
+    public Map<String,Object> findRoleAndMenu(Integer page,Integer rows){
+        return menuService.findRoleAndMenu(page,rows);
     }
 
 
@@ -59,6 +61,15 @@ public class MenuController {
     @GetMapping(value = "/role")
     public RetDto addRole(String roleName){
         return menuService.addRole(roleName);
+    }
+
+    /**
+     * 查询所有权限信息
+     * @return
+     */
+    @PostMapping(value = "/all")
+    public String findAllMenu(){
+        return menuService.findAllMenu();
     }
 
     /**

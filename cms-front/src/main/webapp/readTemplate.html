@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-table.js"></script>
+    <script src="./js/bootstrap-table-zh-CN.js"></script>
+    <script src="./layer/layer.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/bootstrap-table.css"/>
+    <script type="text/javascript">
+        $(function () {
+            gettemplate()
+        });
+
+
+        //判断字符是否为空的方法
+        function isEmpty(obj){
+            var reg = /^\s*$/
+            if(typeof obj == undefined || obj == null || reg.test(obj)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+
+        //获取模板
+        function gettemplate() {
+            $.ajax({
+                url: 'http://172.30.2.41:8080/template/findTemplateById',
+                type: 'get',
+                datatype: 'html',
+                headers: {
+                    "accessToken" : sessionStorage.getItem("accessToken"),
+                },
+                data: {
+                    templateId:"ZjE2nTxY"
+                },
+                success: function (data) {
+                    console.log(data)
+                    $("#aaa").val(data)
+                }
+            })
+        }
+
+
+
+
+    </script>
+</head>
+<body>
+
+<div class="panel-body" style="padding-bottom:0px;">
+    <div class="panel panel-default" style="padding-bottom:0px;" id="toolbar">
+        <div class="panel-body">
+            <div class="row">
+                <div class="input-group col-sm-10">
+                    模板内容<textarea id="aaa" style="color: #0d6aad" class="form-control" rows="20" placeholder="请输入新闻内容"></textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

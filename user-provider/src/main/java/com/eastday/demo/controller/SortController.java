@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -50,7 +51,7 @@ public class SortController {
      * @return
      */
     @GetMapping(value = "")
-    public List<Sort> getAllSort(){
+    public String getAllSort(){
         return sortService.getAllSort();
     }
 
@@ -67,11 +68,20 @@ public class SortController {
     /**
      * 添加子栏目
      * @param sortId 父栏目id
-     * @param sortName 子栏目名称
+     * @param sortNames 子栏目名称
      * @return
      */
     @PostMapping(value = "addSortSon")
-    public RetDto addSortSon(Integer sortId,String sortName){
-        return sortService.addSortSon(sortId,sortName);
+    public RetDto addSortSon(Integer sortId,String[] sortNames){
+        List<Sort> list = new ArrayList<>();
+        for(int i=0;i<sortNames.length;i++){
+            Sort sort = new Sort();
+            sort.setParentId(sortId);
+            sort.setSortName(sortNames[i]);
+            sort.setLever(2);//2级栏目
+            sort.setCreateTime(new Date());
+            list.add(sort);
+        }
+        return sortService.addSortSon(list);
     }
 }

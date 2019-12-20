@@ -24,7 +24,7 @@ public class JwtUtils extends ConstantKey {
      */
     public static String getToken(User user) {
         Date start = new Date();
-        long currentTime = System.currentTimeMillis() + 60* 60 * 1000 * 2;//一小时有效时间
+        long currentTime = System.currentTimeMillis() + 60* 60 * 1000 * 8;//8小时有效时间
         Date end = new Date(currentTime);
         String token = "";
         //用户id作为秘钥

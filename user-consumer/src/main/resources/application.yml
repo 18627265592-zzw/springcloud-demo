@@ -7,6 +7,8 @@ eureka:
 spring:
   application:
     name: user-consumer
+  main:
+      allow-bean-definition-overriding: true #当遇到同样名字的时候，是否允许覆盖注册
   security:
          user:
            name: admin
@@ -19,3 +21,10 @@ hystrix:
           strategy: SEMAPHORE  #加上这个就可以获取到HttpServletRequest
           thread:
             timeoutInMilliseconds: 10000
+
+logging:
+    level:
+      #显示SQL
+      mapper: debug
+      #打印日志
+      com.eastday.demo: debug

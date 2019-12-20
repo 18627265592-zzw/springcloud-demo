@@ -1,9 +1,11 @@
 package com.eastday.demo.controller;
 
 import com.eastday.demo.client.UserClient;
+import com.eastday.demo.config.SystemControllerLog;
 import com.eastday.demo.service.UserService;
 import com.eastday.demo.user.RetDto;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
-
+@Slf4j
 @RestController
 @RequestMapping(value="/user")
 @EnableAutoConfiguration
@@ -41,9 +43,15 @@ public class UserController {
      * @param code
      * @return
      */
+    @SystemControllerLog(type = 1,describe = "用户短信登录")
     @PostMapping(value="smsLogin")
-    public RetDto smsLogin(@RequestParam("phone") String phone,@RequestParam(name = "code") String code){
-       return userClient.smsLogin(phone,code);
+    public RetDto smsLogin(String phone,String code,HttpServletRequest request){
+        RetDto retDto = userClient.smsLogin(phone,code);
+        System.out.println("1");
+        if(retDto.getSuccess()){
+            request.setAttribute("userId",retDto.getContent().get("userId"));
+        }
+        return retDto;
     }
 
 
@@ -53,7 +61,7 @@ public class UserController {
      * @return
      */
     @PostMapping(value="sendCode")
-    public RetDto sendCode(@RequestParam("phone") String phone){
+    public RetDto sendCode(String phone){
         /*String url="";
         RetDto retDto=restTemplate.getForObject(url,RetDto.class);
         //发送成功：执行service
@@ -68,8 +76,9 @@ public class UserController {
      * @param code
      * @return
      */
+    //@CrossOrigin(origins = {"*", "null"}) //允许跨域
     @PostMapping(value = "checkKaptcha")
-    public RetDto checkKaptcha(@RequestParam("code") String code,HttpServletRequest request){
+    public RetDto checkKaptcha(String code,HttpServletRequest request){
         return userService.checkKaptcha(code,request);
     }
 
@@ -77,6 +86,7 @@ public class UserController {
      * 生成验证码
      * @throws Exception
      */
+    //@CrossOrigin(origins = {"*", "null"}) //允许跨域
     @GetMapping(value = "getKaptcha")
     public void getKaptcha (HttpServletRequest request, HttpServletResponse response) throws Exception{
         byte[] kaptchaArr = null;
@@ -84,8 +94,7 @@ public class UserController {
         // 生产验证码字符串并保存到session中
         String createText = defaultKaptcha.createText();
         request.getSession().setAttribute("rightCode", createText);
-        //log.debug("图像验证码："+request.getSession().getAttribute("rightCode"));
-        System.out.println("图像验证码："+request.getSession().getAttribute("rightCode"));
+        log.debug("图像验证码："+request.getSession().getAttribute("rightCode"));
         // 使用生产的验证码字符串返回一个BufferedImage对象并转为byte写入到byte数组中
         BufferedImage challenge = defaultKaptcha.createImage(createText);
         ImageIO.write(challenge, "jpg", jpegOutputStream);

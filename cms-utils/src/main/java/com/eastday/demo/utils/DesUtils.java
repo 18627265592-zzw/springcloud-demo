@@ -6,7 +6,7 @@ import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 import java.nio.charset.Charset;
 
-public class DesUtil {
+public class DesUtils {
 	 private static final String  SKEY    = "abcdefgh";
 	 private static final Charset CHARSET = Charset.forName("UTF-8");
 

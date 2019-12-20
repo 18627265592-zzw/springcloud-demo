@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eastday.demo.dao.INewsDao">
+
+    <select id="selectAllCmsNews" parameterType="CmsNews" resultType="CmsNews">
+        select cn.news_id newsId,s.sort_name sortName,ct.template_name templateName,cn.news_title newsTitle,cn.news_author newsAuthor,
+        cn.publish_user_id publishUserId,cn.state,cn.create_time createTime,cn.template_id templateId,cn.sort_id sortId,cn.news_content newsContent
+        from cms_news cn,sort s,cms_template ct where cn.sort_id=s.sort_id and cn.template_id=ct.template_id
+        <if test="newsTitle!=null and newsTitle !=''">
+            and cn.news_title like concat(concat('%',#{newsTitle}),'%')
+        </if>
+        <if test="publishUserId!=null and publishUserId !=''">
+            and cn.publish_user_id = #{publishUserId}
+        </if>
+        <if test="state!=9">
+            and cn.state = #{state}
+        </if>
+        order by cn.create_time desc
+    </select>
+
+
+
+</mapper>

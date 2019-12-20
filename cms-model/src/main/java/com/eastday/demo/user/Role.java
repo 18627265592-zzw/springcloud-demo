@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Table(name = "role")
 @Data
@@ -16,8 +17,8 @@ public class Role {
     @Column(name = "role_name")
     private String roleName;//角色名
 
-    /*@Sort(name = "role_code")
-    private String roleCode;//角色代码*/
+    @Transient
+    private List<String> menus;
 
     @Column(name = "create_time")
     private Date createTime;//创建时间

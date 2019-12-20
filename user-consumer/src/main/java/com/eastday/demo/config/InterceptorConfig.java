@@ -51,8 +51,8 @@ public class InterceptorConfig implements HandlerInterceptor {
                 String userId;
                 try {
                     userId = JwtUtils.getTokenUserId();
-                } catch (JWTDecodeException j) {
-                    throw new RuntimeException("401");
+                } catch (JWTDecodeException j){
+                    throw new RuntimeException("token错误");
                 }
                 User user = userClient.selectByPrimaryKey(userId);
                 if (user == null) {
@@ -63,7 +63,7 @@ public class InterceptorConfig implements HandlerInterceptor {
                 try {
                     jwtVerifier.verify(accessToken);
                 } catch (JWTVerificationException e) {
-                    throw new RuntimeException("401");
+                    throw new RuntimeException("token错误");
                 }
                 return true;
             }

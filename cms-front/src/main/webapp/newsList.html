@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="./js/jquery-3.3.1.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-table.js"></script>
+    <script src="./js/bootstrap-table-zh-CN.js"></script>
+    <script src="./layer/layer.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./css/bootstrap-table.css"/>
+    <script type="text/javascript">
+        var id = 0, val;
+        $(function () {
+            //1.初始化Table
+            var oTable = new TableInit();
+            oTable.Init();
+            $('#toolbar').parent().removeClass('pull-left');
+        });
+
+        function addFunctionAlty(value, row, index) {
+            return [
+                '<button id="bind" type="button" class="btn btn-info">预览</button>',
+            ].join('');
+        }
+        window.operateEvents = {
+            'click #bind': function (e, value, row, index) {
+                window.open("http://172.30.2.41:8080/news/previewNews?newsId="+row.newsId);
+            }
+        };
+
+
+        var TableInit = function () {
+            var oTableInit = new Object();
+            //初始化Table
+            oTableInit.Init = function () {
+                $('#ArbetTable').bootstrapTable({
+                    url: 'http://172.30.2.41:8080/news/getAllNews',         //请求后台的URL（*）
+                    method: 'get',                      //请求方式（*）
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    striped: true,                      //是否显示行间隔色
+                    cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sortable: false,                     //是否启用排序
+                    sortOrder: "asc",                   //排序方式
+                    queryParams: oTableInit.queryParams,//传递参数（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber: 1,                       //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 20, 30, 50],        //可供选择的每页的行数（*）
+                    search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                    //contentType: "application/x-www-form-urlencoded",
+                    strictSearch: true,
+                    showColumns: false,                  //是否显示所有的列
+                    //showRefresh: true,                  //是否显示刷新按钮
+                    minimumCountColumns: 2,             //最少允许的列数
+                    clickToSelect: true,                //是否启用点击选中行
+                    //height: 700,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                    uniqueId: "no",                     //每一行的唯一标识，一般为主键列
+                    showToggle: false,                    //是否显示详细视图和列表视图的切换按钮
+                    cardView: false,                    //是否显示详细视图
+                    detailView: false,                   //是否显示父子表
+                    ajaxOptions:{
+                            headers: {"accessToken":sessionStorage.getItem("accessToken")}
+                    },
+                    columns: [
+                        {
+                            align: 'center',
+                            title: '序号',
+                            formatter: function (value, row, index) {
+                                return index + 1;
+                            }
+                        }, {
+                            field: 'sortName',
+                            align: 'center',
+                            title: '栏目名称'
+                        }, {
+                            field: 'templateName',
+                            align: 'center',
+                            title: '模板名称'
+                        }, {
+                            field: 'newsTitle',
+                            align: 'center',
+                            title: '新闻标题',
+                        }, {
+                            field: 'newsAuthor',
+                            align: 'center',
+                            title: '编辑',
+                        }, {
+                            field: 'publishUserId',
+                            align: 'center',
+                            title: '创建人ID',
+                        }, {
+                            field: 'statestr',
+                            align: 'center',
+                            title: '状态',
+                        }, {
+                            field: 'createTime',
+                            align: 'center',
+                            title: '创建时间',
+                            sortable: true,
+                    formatter: function (value,row,index) {
+                    return changeDateFormat(value)
+                }
+                        },{
+                            field: 'operate',
+                            title: '操作',
+                            events: operateEvents,//给按钮注册事件
+                            formatter: addFunctionAlty//表格中增加按钮  
+                        }],
+                    onClickRow: function (row, $element) {
+                        //单击行改变背景色
+                        $('.info').removeClass('info');//移除class
+                        $($element).addClass('info');//添加class
+                        id = row.newsId;
+                        val = row;
+                    },
+                });
+
+            };
+
+            //得到查询的参数
+            oTableInit.queryParams = function (params) {
+                newsTitle = $("#newsTitle").val(),
+                state = $("#state").val();
+                var temp = {
+                    state:state,
+                    newsTitle:newsTitle,
+                    page: ((params.offset)/(params.limit))+1,  //页码
+                    rows: params.limit   //行数
+                };
+                return temp;
+            };
+            return oTableInit;
+        };
+
+
+        function changeDateFormat(cellvel) {
+            var date = new Date(+new Date(cellvel)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'');
+            return date;
+        }
+
+        //判断字符是否为空的方法
+        function isEmpty(obj){
+            var reg = /^\s*$/
+            if(typeof obj == undefined || obj == null || reg.test(obj)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        //查询
+        function query() {
+            $('#ArbetTable').bootstrapTable('refresh');
+        }
+
+        //清空
+        function empty() {
+           $("#newsTitle").val("");
+           $("#state").val(9)
+        }
+
+        //删除新闻
+        function deletenews() {
+            if(id == 0){
+                layer.msg('请选择您要删除的新闻');
+                return false;
+            }
+            if(val.state == 4){
+                layer.msg('此新闻已删除');
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定删除', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url : 'http://172.30.2.41:8080/news/checkNews',
+                        type : 'post',
+                        datatype : 'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data : {
+                        newsId : id,
+                            str: "delete"
+                        },
+                        success : function(data) {
+                            if(data.success){
+                                layer.msg('删除成功', {icon: 1,time: 1000 ,end: function () {
+                                    }});
+                            }else {
+                                if(data.message == 1){
+                                    layer.alert('删除失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                            id=0;
+                            $('#ArbetTable').bootstrapTable('refresh');
+                        }
+                    })
+                }
+            }, function(){
+
+            });
+        }
+
+    </script>
+</head>
+<body>
+
+<div class="panel-body" style="padding-bottom:0px;">
+    <div class="panel panel-default" style="padding-bottom:0px;" id="toolbar">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2 ">
+                    <label class="control-label ">新闻标题:</label>
+                    <div style="padding-left: 0px">
+                        <input type="text" class="form-control" id="newsTitle">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <label class="control-label">状态:</label>
+                    <select class="form-control" id="state">
+                        <option value=9>请选择</option>
+                        <option value=0>未审核</option>
+                        <option value=1>待审核</option>
+                        <option value=2>审核通过</option>
+                        <option value=3>审核失败</option>
+                        <option value=4>已删除</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="control-label">&nbsp;</label>
+                    <div style="padding-left: 0px">
+                        <button type="button" onclick="query()" class="btn btn-primary">查询</button>&nbsp;&nbsp;
+                        <button type="button" onclick="empty()" class="btn btn-primary">清空</button>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-danger" onclick="deletenews()">
+                                <i class="fa fa-download"></i> 删除新闻
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-7">
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="ArbetTable"></table>
+</div>
+
+</body>
+</html>
