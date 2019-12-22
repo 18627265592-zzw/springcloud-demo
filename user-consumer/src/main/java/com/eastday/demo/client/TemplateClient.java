@@ -34,4 +34,7 @@ public interface TemplateClient {
 
     @PostMapping(value = "/template/getAllTemplate")
     List<CmsTemplate> getAllTemplate();
+
+    @PostMapping(value = "/template/createTemplate")
+    RetDto createTemplate(@RequestBody CmsTemplate cmsTemplate);
 }

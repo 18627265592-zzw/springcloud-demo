@@ -8,6 +8,7 @@
     <script src="./js/bootstrap-table.js"></script>
     <script src="./js/bootstrap-table-zh-CN.js"></script>
     <script src="./layer/layer.js"></script>
+    <script src="./js/cms.js"></script>
     <link rel="stylesheet" href="./css/bootstrap.min.css"/>
     <link rel="stylesheet" href="./css/bootstrap-table.css"/>
     <script type="text/javascript">
@@ -30,7 +31,7 @@
         //获取模板
         function gettemplate() {
             $.ajax({
-                url: 'http://172.30.2.41:8080/template/findTemplateById',
+                url: 'http://'+cmsurl+':8080/template/findTemplateById',
                 type: 'get',
                 datatype: 'html',
                 headers: {

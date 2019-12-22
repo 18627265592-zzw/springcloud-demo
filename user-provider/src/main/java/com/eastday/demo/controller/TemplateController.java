@@ -90,4 +90,14 @@ public class TemplateController {
     public List<CmsTemplate> getAllTemplate(){
         return templateService.getAllTemplate();
     }
+
+    /**
+     * 创建模板
+     * @param cmsTemplate
+     * @return
+     */
+    @PostMapping(value = "createTemplate")
+    public RetDto createTemplate(@RequestBody CmsTemplate cmsTemplate){
+        return templateService.createTemplate(cmsTemplate);
+    }
 }

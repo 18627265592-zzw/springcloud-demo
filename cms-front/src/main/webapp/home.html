@@ -19,6 +19,7 @@
   <script src="js/bootstrap.min.js"></script>
   <!-- AdminLTE App -->
   <script src="js/adminlte.min.js"></script>
+  <script src="./js/cms.js"></script>
   <!-- Google Font -->
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
@@ -81,7 +82,7 @@
 
   function menuShow(){
       $.ajax({
-          url: 'http://172.30.2.41:8080/menu',
+          url: 'http://'+cmsurl+':8080/menu',
           type: 'post',
           datatype: 'json',
           headers: {

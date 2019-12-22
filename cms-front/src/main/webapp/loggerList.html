@@ -8,6 +8,7 @@
     <script src="./js/bootstrap-table.js"></script>
     <script src="./js/bootstrap-table-zh-CN.js"></script>
     <script src="./layer/layer.js"></script>
+    <script src="./js/cms.js"></script>
     <link rel="stylesheet" href="./css/bootstrap.min.css"/>
     <link rel="stylesheet" href="./css/bootstrap-table.css"/>
     <script type="text/javascript">
@@ -25,7 +26,7 @@
             //初始化Table
             oTableInit.Init = function () {
                 $('#ArbetTable').bootstrapTable({
-                    url: 'http://172.30.2.41:8080/logger/findAllLogger',         //请求后台的URL（*）
+                    url: 'http://'+cmsurl+':8080/logger/findAllLogger',         //请求后台的URL（*）
                     method: 'get',                      //请求方式（*）
                     toolbar: '#toolbar',                //工具按钮用哪个容器
                     striped: true,                      //是否显示行间隔色

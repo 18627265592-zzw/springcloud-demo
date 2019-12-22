@@ -8,6 +8,7 @@
     <script src="./js/bootstrap-table.js"></script>
     <script src="./js/bootstrap-table-zh-CN.js"></script>
     <script src="./layer/layer.js"></script>
+    <script src="./js/cms.js"></script>
     <link rel="stylesheet" href="./css/bootstrap.min.css"/>
     <link rel="stylesheet" href="./css/bootstrap-table.css"/>
     <script type="text/javascript">
@@ -25,7 +26,7 @@
             //初始化Table
             oTableInit.Init = function () {
                 $('#ArbetTable').bootstrapTable({
-                    url: 'http://172.30.2.41:8080/template/findAllTemplate',         //请求后台的URL（*）
+                    url: 'http://'+cmsurl+':8080/template/findAllTemplate',         //请求后台的URL（*）
                     method: 'get',                      //请求方式（*）
                     toolbar: '#toolbar',                //工具按钮用哪个容器
                     striped: true,                      //是否显示行间隔色
@@ -178,7 +179,7 @@
                         locked = true;
                         $.ajax({
                             type : "post",
-                            url : "http://172.30.2.41:8080/template/addTemplate",
+                            url : "http://"+cmsurl+":8080/template/addTemplate",
                             data : formData,
                             processData : false,
                             contentType : false,
@@ -235,7 +236,7 @@
                     if(!locked) {
                         locked = true;
                         $.ajax({
-                            url : 'http://172.30.2.41:8080/template/deleteTemplate',
+                            url : 'http://'+cmsurl+':8080/template/deleteTemplate',
                             type : 'post',
                             datatype : 'json',
                             headers: {
@@ -297,7 +298,7 @@
                 if(!locked) {
                     locked = true;
                     $.ajax({
-                        url : 'http://172.30.2.41:8080/template/updateTemplate',
+                        url : 'http://'+cmsurl+':8080/template/updateTemplate',
                         type : 'post',
                         datatype : 'json',
                         headers: {
@@ -339,7 +340,7 @@
         //获取模板内容
         function gettemplate(obj) {
             $.ajax({
-                url: 'http://172.30.2.41:8080/template/findTemplateById',
+                url: 'http://'+cmsurl+':8080/template/findTemplateById',
                 type: 'get',
                 datatype: 'html',
                 headers: {
@@ -352,6 +353,70 @@
                     $("#templateContent2").val(data)
                 }
             })
+        }
+
+        //创建模板模态框打开
+        function modal3show() {
+            $('#myModal3').modal('show');
+        }
+
+        //修改模板信息
+        function createtemplate() {
+            var templateName = $("#templateName3").val();
+            var templateContent = $("#templateContent3").val();
+            if(isEmpty(templateName)){
+                layer.msg('模板名称不能为空');
+                return false;
+            }if(isEmpty(templateContent)){
+                layer.msg('模板内容不能为空');
+                return false;
+            }
+            var locked = false;
+            layer.confirm('是否确定创建', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll();
+                if(!locked) {
+                    locked = true;
+                    $.ajax({
+                        url : 'http://'+cmsurl+':8080/template/createTemplate',
+                        type : 'post',
+                        datatype : 'json',
+                        headers: {
+                            "accessToken" : sessionStorage.getItem("accessToken"),
+                        },
+                        data : {
+                            templateName : templateName,
+                            templateContent : templateContent
+                        },
+                        success : function(data) {
+                            if(data.success){
+                                $('#myModal3').modal('hide');
+                                layer.msg('创建成功', {icon: 1,time: 1000 ,end: function () {
+                                    }});
+                            }else {
+                                if(data.message == 1){
+                                    layer.alert('操作失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }else if(data.message == 2){
+                                    layer.alert('创建文件失败，请联系技术人员', {
+                                        icon: 5,
+                                        title: "提示"
+                                    });
+                                }
+                            }
+                            id=0;
+                            $("#templateName3").val("");
+                            $("#templateContent3").val("");
+                            $('#ArbetTable').bootstrapTable('refresh');
+                        }
+                    })
+                }
+            }, function(){
+
+            });
         }
 
     </script>
@@ -400,12 +465,17 @@
                             </button>
                         </div>
                         <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
-                            <button type="button" class="btn btn-success" onclick="modal2show()">
+                            <button type="button" class="btn btn-info" onclick="modal2show()">
                                 <i class="fa fa-download"></i> 修改模板信息
                             </button>
                         </div>
                     </div>
                     <div class="col-sm-6">
+                        <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
+                            <button type="button" class="btn btn-success" onclick="modal3show()">
+                                <i class="fa fa-download"></i> 创建模板
+                            </button>
+                        </div>
                         <div class="col-sm-6 col-xs-6" style="padding:5px 2px">
                             <button type="button" class="btn btn-danger" onclick="deletatemplate()">
                                 <i class="fa fa-download"></i> 删除模板
@@ -477,6 +547,36 @@
                     <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
                     </button>
                     <button type="button" class="btn btn-primary" onclick="updatetemplateName()" style="margin-left: 15px">
+                        <i class="fa fa-download"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+        <div class="modal-dialog"  style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel3">
+                        添加模板
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group col-sm-3">
+                        模板名称<input type="text" id="templateName3" style="color: #0d6aad" class="form-control" placeholder="请输入模板名称">
+                    </div>
+                    <br>
+                    <div class="input-group col-sm-10">
+                        模板内容<textarea id="templateContent3" style="color: #0d6aad" class="form-control" rows="15"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="createtemplate()" style="margin-left: 15px">
                         <i class="fa fa-download"></i> 保存
                     </button>
                 </div>

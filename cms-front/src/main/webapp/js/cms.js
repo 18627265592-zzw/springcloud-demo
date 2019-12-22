@@ -1,0 +1,1 @@
+var cmsurl = "localhost";//172.30.2.41

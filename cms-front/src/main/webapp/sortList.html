@@ -8,6 +8,7 @@
     <script src="./js/bootstrap-table.js"></script>
     <script src="./js/bootstrap-table-zh-CN.js"></script>
     <script src="./layer/layer.js"></script>
+    <script src="./js/cms.js"></script>
     <link rel="stylesheet" href="./css/bootstrap.min.css"/>
     <link rel="stylesheet" href="./css/bootstrap-table.css"/>
     <!-- 导入树文件 -->
@@ -23,7 +24,7 @@
         //获取全部栏目列表
         function getAllSort() {
             $.ajax({
-                url: 'http://172.30.2.41:8080/sort',
+                url: 'http://'+cmsurl+':8080/sort',
                 type: 'get',
                 datatype: 'json',
                 async: false,
@@ -41,7 +42,7 @@
         function showSort() {
             var html="<div class=\"tree\" style='width: auto;'><ul>";
             $.ajax({
-                url: 'http://172.30.2.41:8080/sort',
+                url: 'http://'+cmsurl+':8080/sort',
                 type: 'get',
                 datatype: 'json',
                 headers: {
@@ -112,7 +113,7 @@
                 if(!locked) {
                     locked = true;
                     $.ajax({
-                        url : 'http://172.30.2.41:8080/sort',
+                        url : 'http://'+cmsurl+':8080/sort',
                         type : 'post',
                         datatype : 'json',
                         headers: {
@@ -179,7 +180,7 @@
                 if(!locked) {
                     locked = true;
                     $.ajax({
-                        url : 'http://172.30.2.41:8080/sort/deleteBySortId',
+                        url : 'http://'+cmsurl+':8080/sort/deleteBySortId',
                         type : 'post',
                         datatype : 'json',
                         headers: {
@@ -265,7 +266,7 @@
                 if(!locked) {
                     locked = true;
                     $.ajax({
-                        url : 'http://172.30.2.41:8080/sort/addSortSon',
+                        url : 'http://'+cmsurl+':8080/sort/addSortSon',
                         type : 'post',
                         datatype : 'json',
                         headers: {

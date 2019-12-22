@@ -238,4 +238,23 @@ public class TemplateService {
         return templateDao.selectAll();
     }
 
+    public RetDto createTemplate(CmsTemplate cmsTemplate){
+        if(StringUtils.isNotBlank(cmsTemplate.getTemplateName()) && StringUtils.isNotBlank(cmsTemplate.getTemplateContent())){
+            String createUserId=JwtUtils.getTokenUserId();
+            String templateId= CmsUtils.generateShortUuid();//模板id
+            cmsTemplate.setTemplateId(templateId);
+            //创建文件
+            String templateFile = createTemplateFile(cmsTemplate.getTemplateId(), cmsTemplate.getTemplateContent());
+            if("false".equals(templateFile)){
+                return new RetDto(false, 2, null);// 2：创建文件失败
+            }
+            cmsTemplate.setTemplateFileUrl(templateFile);
+            cmsTemplate.setCreateUserId(createUserId);
+            cmsTemplate.setCreateTime(new Date());
+            templateDao.insertSelective(cmsTemplate);
+            return new RetDto(true, 0, null);// 0：成功
+        }
+        return new RetDto(false, 1, null);// 1：操作失败
+    }
+
 }

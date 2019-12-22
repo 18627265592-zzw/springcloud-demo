@@ -118,4 +118,17 @@ public class TemplateController {
     public List<CmsTemplate> getAllTemplate(){
         return templateClient.getAllTemplate();
     }
+
+    /**
+     * 创建模板
+     * @param cmsTemplate
+     * @return
+     */
+    @UserLoginToken
+    @SystemControllerLog(type = 2,describe = "创建模板")
+    @Authentication(value = "template_manage")
+    @PostMapping(value = "createTemplate")
+    public RetDto createTemplate(CmsTemplate cmsTemplate){
+        return templateClient.createTemplate(cmsTemplate);
+    }
 }
