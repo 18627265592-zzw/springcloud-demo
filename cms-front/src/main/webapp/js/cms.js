@@ -1,1 +1,1 @@
-var cmsurl = "localhost";//172.30.2.41
+var cmsurl = "172.30.2.41";//localhost

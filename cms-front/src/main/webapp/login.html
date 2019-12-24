@@ -157,7 +157,8 @@
 
   	//登录验证
 	function login() {
-		var phone = $("#phone").val();
+		//var phone = $("#phone").val();
+        var phone = "18627265592";
         var smscode = $("#smscode").val();
 		if(isEmpty(phone)){
 			layer.msg('手机号不能为空');
@@ -207,7 +208,8 @@
     };
     
     function sendCmsCode() {
-        var phone = $("#phone").val();
+        //var phone = $("#phone").val();
+        var phone = "18627265592";
         $.ajax({
             url: 'http://'+cmsurl+':8080/user/sendCode',
             type: 'post',
